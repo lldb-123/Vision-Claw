@@ -7,3 +7,9 @@
 5. 上电先低速单轴测试，确认 DIR 极性、限位有效电平和急停接线后再提高速度。
 
 命令示例：`MOVE X 1600 800`、`GOTO Y 3200 1200`、`HOME X`、`STOP Y`、`ESTOP`。
+# 外设补充
+
+- TIM3 计数频率配置为 1 MHz，周期 20,000，CH1/CH2 输出 50 Hz 舵机 PWM。
+- `Servo_SetPulseUs()` 的参数单位为微秒，MG90S/DS3120 初始中位 1500 us。
+- `Sensors_Read()` 中的 GPIOC Pin0 是对射光电示例引脚，请按实际接线替换。
+- `host_protocol.h` 提供香橙派通信帧的命令号和 CRC16；接收解析建议使用 DMA 环形缓冲。
