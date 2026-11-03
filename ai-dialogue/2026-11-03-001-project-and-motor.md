@@ -374,3 +374,16 @@ Set-Location -LiteralPath 'C:\Users\Lenovo\Desktop\单电机试转'
 - [xPack OpenOCD 0.12.0-7 发布页](https://github.com/xpack-dev-tools/openocd-xpack/releases/tag/v0.12.0-7)。
 - [Pololu A4988 驱动板说明](https://www.pololu.com/product/1182)：驱动接口、限流和电源连接参考；用户实物是 A4988 类裸模块，采样电阻和板子具体实现仍需看实物。
 - [OpenOCD Reset Configuration](https://openocd.org/doc/html/Reset-Configuration.html)：复位和调试连接参考。当前成功路径没有要求用户新增 NRST 连线，不应把参考方案误记为已经实施。
+
+## 16. 本次归档的实际提交与同步结果
+
+- 本地仓库根目录：`C:/Users/Lenovo/Documents/ChatGPT/工创赛`。开始时已有未提交的 `.git`，没有历史提交、没有远程地址；原交接文档为未跟踪文件。
+- 将 `origin` 设置为 `https://github.com/lldb-123/Vision-Claw.git`，本地分支设为 `main`。
+- 首次归档提交为 `2435a96`，包含根目录 `README.md`、`AGENTS.md` 及 `ai-dialogue/` 中三份文档，共 5 个文件。后续归档状态补充再单独提交。
+- GitHub 连接器可以读取仓库，但创建文件返回 `403 Resource not accessible by integration`。这是连接器写入权限限制，不是仓库不存在；没有通过该连接器成功写入文件。
+- 改用本机 Git。首次非交互推送因没有可用认证失败；随后运行 `git credential-manager github login --browser --username lldb-123` 成功返回，再执行 `git push --set-upstream origin main` 成功。
+- 实际推送输出确认 `main -> main`，并建立 `origin/main` 跟踪。Git 凭据不写入本记录或仓库。
+- 原根目录 `工创赛_对话接续记录_2026-11-03.md` 留在原电脑本地，没有重复纳入首次提交；仓库中的完整记录以本篇为准。
+- 本次归档没有重新烧录 STM32、启动电机或变更硬件；本记录所述最新版持续旋转的实物反馈仍然待确认。
+
+如果下次只是在此仓库继续开发，Git 远程和分支已经配置，不需要再次初始化或克隆一个重复仓库。
