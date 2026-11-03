@@ -1,0 +1,5 @@
+/* In stm32f4xx_it.c: */
+/* void TIM6_DAC_IRQHandler(void){ HAL_TIM_IRQHandler(&htim6); } */
+/* In HAL_TIM_PeriodElapsedCallback: */
+/* if(htim->Instance == TIM6) Motion_TickISR(); */
+/* In main.c after MX_*_Init(): Motion_Init(); Motion_Start(); */

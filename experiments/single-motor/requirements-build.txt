@@ -1,0 +1,5 @@
+# Versions used to build and emulate the current firmware.
+keystone-engine==0.9.2
+capstone==5.0.9
+intelhex==2.3.0
+unicorn==2.1.4

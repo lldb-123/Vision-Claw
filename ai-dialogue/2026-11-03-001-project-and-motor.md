@@ -8,6 +8,8 @@
 
 阅读入口：[记录索引与最新状态](README.md)。文档中的 `C:/Users/Lenovo/...` 是原 Windows 电脑路径，只用于定位已有资料；其他电脑需要重新映射，不代表对应代码或附件已经提交到 GitHub。
 
+**同一对话后续更新：用户又要求把资料和工程本身导入仓库，并在这轮整理中只做一个 commit。现在代码和附件已按模块归位，最新目录及验证见本篇第 17、18 节和 [资料来源映射](../docs/materials.md)。前面提到“尚未导入”的内容是早期归档时的历史状态。**
+
 ## 1. 接续时先看这几条
 
 - 项目是中国大学生工程实践与创新能力大赛的智能分拣赛道，具体届次、最终规则请核对正式文件。用户提供的命题文档标题含“2027年第十届”。
@@ -387,3 +389,67 @@ Set-Location -LiteralPath 'C:\Users\Lenovo\Desktop\单电机试转'
 - 本次归档没有重新烧录 STM32、启动电机或变更硬件；本记录所述最新版持续旋转的实物反馈仍然待确认。
 
 如果下次只是在此仓库继续开发，Git 远程和分支已经配置，不需要再次初始化或克隆一个重复仓库。
+
+## 17. 后续请求：导入对应文件并整理仓库
+
+### 用户目标和提交要求
+
+用户认为仅有对话记录仍不方便，明确要求把对应文件一并上传，特别指出桌面的电控初始设计和已提交方案 `team.pdf`，并授权设计仓库布局。**本轮整个整理只做一个 commit**，不把复制、说明和记录拆成多个提交，也不重写之前两次归档提交。
+
+操作曾被用户中断；当时只尝试读取，没有创建整理提交。用户随后明确说“继续”，本轮按原目标继续完成文件导入和检查。
+
+### 导入后的实际位置
+
+| 文件或工程 | 仓库路径 | 原始内容处理 |
+| --- | --- | --- |
+| 已提交方案 | [docs/competition/team.pdf](../docs/competition/team.pdf) | 原 PDF |
+| 命题/方案文档草稿 | [docs/competition/](../docs/competition/) 中的 `.doc` | 原文件，仍按草稿看待 |
+| 采购申购表 | [docs/procurement/](../docs/procurement/) | 原 XLSX |
+| 队内架构图 | [system-architecture.png](../docs/architecture/system-architecture.png) | 原用户附件 |
+| 队友电控初版 | [firmware/stm32-motion-framework/](../firmware/stm32-motion-framework/) | 8 个原设计和源码文件，未改控制逻辑 |
+| 上位机工程 | [software/upper-computer/](../software/upper-computer/) | 应用、测试、配置、脚本、协议文档和旧交接 |
+| 单电机实验 | [experiments/single-motor/](../experiments/single-motor/) | 汇编、构建/检查脚本、HEX/BIN、下载工具脚本、参数和验证结果 |
+| 开发板资料 | [hardware/stm32f407-mini/](../hardware/stm32f407-mini/) | 原 `.schdoc`、`.pcbdoc` |
+| 机械设计 | [hardware/mechanical/](../hardware/mechanical/) | 原装配体及 18 个零件，保留名称 |
+
+### 仓库布局及说明
+
+- 根目录 `README.md` 改为项目导航、目录树和当前能运行的功能。
+- 新增 `docs/README.md`、`docs/materials.md`，提供材料入口和原电脑路径对应关系。
+- 新增 `firmware/README.md`，解释初版范围，以及和上位机演示协议、单电机实验的区别。
+- 新增 `hardware/README.md`，说明板卡文件和 CAD 打开方式、当前验证范围。
+- 新增根目录 `.gitignore` 和 `.gitattributes`，忽略环境、缓存、日志、工具包、标定和原 Flash 备份，并保留原 PDF/Office/CAD/固件二进制字节。
+- 更新 `AGENTS.md` 和对话索引，新对话直接从仓库读取资料，不要求用户继续重复补传桌面文件。
+- 各原桌面工程保留，没有移动、删除或覆盖。
+
+### 为克隆后使用所做的少量调整
+
+- 上位机 README 改成“首次克隆先安装环境”，移除原机器已经配好 `.venv` 的假设；明确协议仍待与队友对齐。
+- 单电机新增 `requirements-build.txt`：Keystone 0.9.2、Capstone 5.0.9、IntelHex 2.3.0、Unicorn 2.1.4。
+- 单电机 `flash_motor.ps1` 增加 `-OpenOcdPath`、`-OpenOcdScripts`；沿用原便携工具目录，也可查找 PATH 和常见 scripts 目录。没有改变引脚、脉冲、复位后动作或下载速度。
+- 驱动安装脚本先检查本地驱动包，未准备时直接说明官方来源，不先弹管理员提示。
+- 实验 README 补充重新建环境、下载工具、驱动目录和外部工具路径示例。
+
+### 本机内容与明确限制
+
+没有复制虚拟环境、第三方工具链、运行日志、临时 PDF 截图、机器标定和 `original_sector0.bin`。原 Flash 备份留在原桌面目录。
+
+新电脑克隆后需要安装 Python 依赖，烧录时另行准备 OpenOCD/ST-Link 驱动。新目录首次下载时创建的备份是当时板上固件，不能当成最早保留在桌面的原备份。
+
+未使用 CAD 软件验证装配体或修复外部引用；未把电控框架补成完整 CubeMX 工程；没有重新烧录或启动实物。最新版持续旋转的实物效果仍待用户反馈。
+
+## 18. 本轮迁移验证
+
+所有以下检查均针对仓库里的副本；测试使用原电脑已有的 Python 解释器环境，不复制其虚拟环境。
+
+1. `team.pdf`、命题 `.doc`、采购 `.xlsx`、架构图复制后分别与原文件核对 SHA256，一致。
+2. 在 `software/upper-computer/` 运行 `python -m unittest discover -s tests -v`：9 项全部通过，覆盖完整演示、CRC、重试去重、丢失结果查询、停止、复位检测、落料失败及标定。
+3. 在同目录运行 `python -m sorting_app --headless`：结果 `simulated=true`，`completed=12`，`bins=[2,2,2,2,2,2]`，`physical_sort_calls=12`。这里的调用数是模拟器动作计数，绝不是实物分拣次数。
+4. 在 `experiments/single-motor/` 运行 `build_firmware.py` 和 `check_firmware.py`：持续 650 脉冲、50→200Hz 加速、1ms 高电平、固定方向和 SWD 保留检查通过。
+5. 新生成 `motor_test.bin` 与原桌面版本 SHA256 一致，固件仍为 768 字节，运动行为没有因目录迁移改变。
+6. PowerShell 解析器检查仓库中的 `flash_motor.ps1` 和 `install_driver.ps1`，均无语法错误。没有执行硬件下载或驱动安装流程。
+7. 对 Markdown 相对路径做文件存在检查：75 个目标均存在。队友电控初版的 8 个导入文件也逐个与桌面原件核对 SHA256，一致。
+
+提交前发现远端多了一次用户的 README 更新，提交为 `5500c4a`，其中加入作者信息。已先同步该提交，并在新的项目导航中保留作者信息。当前工作区另有一份新对话草稿 `2026-11-03-002-motion-framework-review.md` 及该对话产生的两份架构草稿，没有纳入本轮整理提交或覆盖其内容；原根目录旧交接文件也继续保留本地。导入的旧源码和历史文档保留原格式，提交前的空白检查针对本轮编辑部分，不为消除样式提示改写原设计文件。
+
+后续找资料时请使用根目录和各模块 README；本篇早期 Windows 路径仍可作为来源追溯，但不再是阅读这些文件的唯一办法。

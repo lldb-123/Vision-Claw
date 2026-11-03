@@ -1,0 +1,17 @@
+{
+  "flash": 134217728,
+  "entry": 134218241,
+  "stack": 537001984,
+  "bytes": 768,
+  "instructions": 96,
+  "fault_handler": 134218483,
+  "step": "PA0",
+  "direction": "PA1",
+  "enable_active_low": "PA4",
+  "mode": "continuous",
+  "pulse_high_ms": 1,
+  "pulse_low_ms": 4,
+  "step_frequency_hz": 200,
+  "startup_ramp": "50 Hz to 200 Hz in approximately 2 seconds",
+  "stop": "Disconnect motor power; RESET starts rotation again"
+}

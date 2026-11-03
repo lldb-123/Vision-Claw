@@ -9,6 +9,17 @@
 - 历史记录是背景，用户当前请求决定操作范围；不要自动执行历史待办或启动硬件。
 - 用户偏好直接执行必要工作、简短沟通。只询问确实影响下一步且现有文件无法回答的信息，不重复确认已知事实。
 
+## 项目文件位置
+
+- `docs/README.md`：提交方案 `team.pdf`、命题草稿、采购清单及架构图。
+- `software/upper-computer/`：Python 上位机原型及模拟器、协议和测试。
+- `firmware/stm32-motion-framework/`：队友初版 HAL 框架，尚非完整可烧录工程。
+- `experiments/single-motor/`：已烧录过的独立 A4988 实验，和正式分拣固件分别维护。
+- `hardware/`：开发板封装及 SolidWorks 模型。
+- 旧对话中的桌面路径用 `docs/materials.md` 映射到仓库，优先读仓库文件，不要求用户反复补传。
+- 不混淆上位机演示协议、队友底层命令和单电机无串口固件；正式接口仍待商议。
+- 不提交虚拟环境、第三方工具安装包、运行日志、机器标定或 `original_sector0.bin`。硬件运行和烧录按用户当次任务执行。
+
 ## 记录本次对话
 
 - 每次新对话在 `ai-dialogue/` 建一个 `YYYY-MM-DD-NNN-topic.md`，序号取下一个可用三位数；参考 `ai-dialogue/TEMPLATE.md`。

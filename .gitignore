@@ -1,0 +1,24 @@
+# Local Python environments and generated caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Runtime and machine-specific data
+logs/
+outputs/
+tmp/
+configs/calibration.json
+original_sector0.bin
+/experiments/single-motor/tools/
+
+# Credentials and operating-system files
+.env
+.env.*
+!.env.example
+Thumbs.db
+.DS_Store
+*.tmp
+~$*

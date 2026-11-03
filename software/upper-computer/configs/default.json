@@ -1,0 +1,7 @@
+{
+  "serial": {"port": "COM3", "baudrate": 115200, "ack_timeout": 0.3, "retries": 2, "motion_timeout": 12.0},
+  "camera": {"index": 0, "width": 1280, "height": 720},
+  "vision": {"min_area": 350, "min_saturation": 75, "min_value": 55},
+  "sorting": {"bins": 6, "capacity_per_bin": 4, "round_seconds": 180},
+  "calibration": {"width_mm": 260.0, "height_mm": 260.0}
+}
