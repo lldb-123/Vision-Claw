@@ -10,6 +10,7 @@
 
 ## 相关代码和硬件
 
+- [Orange Pi 5 Plus 初始化与规范使用手册](orangepi-5-plus-initialization-guide.md)：完整设置清单、中文、网络/校时、Python、相机/串口、RKNN 环境规划及验收；建议步骤不等于已在板端执行。
 - [STM32 电控初版](../firmware/README.md)：队友原设计、接口和 Core 源码。
 - [上位机说明](../software/upper-computer/README.md)、[演示通信协议](../software/upper-computer/docs/通信协议.md)：与队友固件尚未统一接口。
 - [单电机实验](../experiments/single-motor/README.md)：实际已烧录过的独立实验，不能当作完整分拣固件。

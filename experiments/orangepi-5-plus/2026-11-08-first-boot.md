@@ -37,6 +37,7 @@
 
 ## 待核实与后续文件
 
+- 完整的设置顺序、命令、环境划分和验收清单见 [Orange Pi 5 Plus 初始化与规范使用手册](../../docs/orangepi-5-plus-initialization-guide.md)。该文档是后续执行指南，不新增板端实测结论。
 - 在板上执行 `cat /etc/os-release`、`uname -r`，记录实际发行版和内核；不要用下载文件名替代板上实测。
 - 用万用表和实物接线照片核对 UBEC 带载输出、极性、接头与线材温升。当前只记录用户描述，不把供电长期稳定性写成已验证。
 - 板上日期在后续网络调试中曾落后，HTTPS 因证书日期报错；网络和时钟问题见[连接记录](../../ai-dialogue/2026-11-07-005-orangepi-no-keyboard-network.md)。
