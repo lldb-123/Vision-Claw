@@ -12,7 +12,7 @@ TIM_HandleTypeDef htim6,htim3;
 UART_HandleTypeDef huart2;
 void SysTick_Handler(void){HAL_IncTick();}
 void TIM6_DAC_IRQHandler(void){HAL_TIM_IRQHandler(&htim6);}
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *h){if(h->Instance==TIM6){Motion_TickISR();motion_axis_t a;Motion_Snapshot(MOTION_AXIS_X,&a);if(a.state==AXIS_ESTOP)Servo_EStop();}}
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *h){if(h->Instance==TIM6){Motion_TickISR();motion_axis_t a;Motion_Snapshot(MOTION_AXIS_X,&a);if(a.state==AXIS_ESTOP){Servo_EStop();HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4|GPIO_PIN_5,GPIO_PIN_SET);}}}
 static void fatal(void){__disable_irq();while(1){}}
 static void reply(const char *s){HAL_UART_Transmit(&huart2,(uint8_t*)s,strlen(s),50);}
 static void pins(GPIO_TypeDef *p,uint32_t mask,uint32_t mode,uint32_t pull,uint32_t af){GPIO_InitTypeDef g={0};g.Pin=mask;g.Mode=mode;g.Pull=pull;g.Speed=GPIO_SPEED_FREQ_HIGH;g.Alternate=af;HAL_GPIO_Init(p,&g);}
@@ -60,7 +60,7 @@ static void command(char *s){
  else if(strncmp(s,"MOVE_MM ",8)==0||strncmp(s,"GOTO_MM ",8)==0){
   char *v[5];unsigned count=0;char *token=strtok(s," ");while(token&&count<5){v[count++]=token;token=strtok(NULL," ");}
   if(count!=4||strlen(v[1])!=1||(v[1][0]!='X'&&v[1][0]!='Y')){reply("ERR FORMAT\r\n");return;}
-  char *end;errno=0;float mm=strtof(v[2],&end);if(errno||*end||!isfinite(mm)||mm<0||mm>10000){reply("ERR RANGE\r\n");return;}
+  char *end;errno=0;float mm=strtof(v[2],&end);bool relative=strcmp(v[0],"MOVE_MM")==0;float maxmm=v[1][0]=='X'?X_MAX_MM:Y_MAX_MM;if(errno||*end||!isfinite(mm)||(!relative&&(mm<0||mm>maxmm))){reply("ERR RANGE\r\n");return;}
   errno=0;float mmps=strtof(v[3],&end);if(errno||*end||!isfinite(mmps)||mmps<=0){reply("ERR SPEED\r\n");return;}
   motion_axis_id_t i=v[1][0]=='X'?MOTION_AXIS_X:MOTION_AXIS_Y;float k=i==MOTION_AXIS_X?X_STEPS_PER_MM:Y_STEPS_PER_MM;
   if(HAL_GPIO_ReadPin(GPIOA,i==MOTION_AXIS_X?GPIO_PIN_4:GPIO_PIN_5)==GPIO_PIN_SET){reply("ERR AXIS_DISABLED\r\n");return;}
