@@ -10,6 +10,10 @@ extern UART_HandleTypeDef huart2;
 #define MOTION_STEP_HIGH_US  5u
 #define MOTION_MAX_SPEED     12000.0f
 #define MOTION_MIN_SPEED     100.0f
+#define X_STEPS_PER_MM       80.0f
+#define Y_STEPS_PER_MM       80.0f
+#define X_MIN_MM             0.0f
+#define Y_MIN_MM             0.0f
 #define X_STEP_GPIO_Port GPIOA
 #define X_STEP_Pin       GPIO_PIN_0
 #define X_DIR_GPIO_Port  GPIOA
