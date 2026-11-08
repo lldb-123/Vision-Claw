@@ -16,9 +16,9 @@
 - 用户负责视觉、通信及上位机整体框架；队友主要负责 STM32 和电机底层。正式通信接口仍待商议。
 - 四个电机：X/Y 为 42 步进电机，Z 为 MG90S 舵机，分类转盘为 DS3120 舵机。
 - 整机上位机演示工程已导入 [software/upper-computer](../software/upper-computer/README.md)，尚未完成整机实物联调。
-- **Orange Pi 5 Plus 已由用户实物确认启动 Ubuntu 图形桌面。** 64 GB TF 卡首次 Etcher 验证失败，后来用户报告验证成功；首次上电的红灯、蓝绿色灯只证明当时有通电反应，成功启动以之后的桌面照片和用户确认为准。板上实际发行版版本及最终烧录镜像文件名尚未命令核对，UBEC 电池供电的带载电压/极性也未测量归档。见[首次上电汇总](../experiments/orangepi-5-plus/2026-11-08-first-boot.md)、[004](2026-11-07-004-orangepi5plus-ubuntu-flash-guide.md)。
-- Windows 与板卡网线直连、SSH 登录及基本外网 ping 已由用户验证；板端时钟仍曾落后，HTTPS 证书检查失败。网络细节见[005](2026-11-07-005-orangepi-no-keyboard-network.md)。这些结果不代表视觉或分拣程序已部署到板卡。
-- 首次上电汇总及相关对话记录已推送至 `codex/orangepi-bringup` 分支，待用户创建指向 `main` 的 PR；当前 `main` 尚未合入这些文件。
+- **Orange Pi 5 Plus 已由用户实物确认启动图形桌面，并通过 SSH 登录。** 64 GB TF 卡首次 Etcher 验证失败，后来用户报告验证成功；板上实际发行版版本及最终烧录镜像文件名尚未命令核对。用户提供的 [Orange Pi 5 Plus 镜像下载页](https://www.fujianleji.com/orange/Orange_Pi_5_Plus_download.html?utm_source=chatgpt.com) 有 Ubuntu 入口，但不是单个 `.img` 直链；此前校验过的 Joshua Riek 镜像不能直接认定为当前运行镜像。供电带载电压/极性仍待测，详见[首次上电汇总](../experiments/orangepi-5-plus/2026-11-08-first-boot.md)、[004](2026-11-07-004-orangepi5plus-ubuntu-flash-guide.md)。
+- Windows 与板卡网线直连 `192.168.50.1/24` ↔ `192.168.50.2`，SSH 和外网 IP/域名 ping 已由用户验证；电脑 WinNAT 已开启，板端 NetworkManager 已保存网关，重启持久性尚未验证。板端日期仍停在 2026-08-31，HTTPS 报证书“尚未生效”。中文语言设置被提出但尚未执行，先核实板端发行版。网络细节见[005](2026-11-07-005-orangepi-no-keyboard-network.md)。这些结果不代表视觉或分拣程序已部署。
+- 当前远端有 `main`、`codex/vision-yolo`、`codex/orangepi-bringup` 三条分支线；初始化记录保留在 `codex/orangepi-bringup`。用户计划等板卡初始化整理完成后、**正式开发 YOLO 和部署模型之前**再合并三条主线。目前未合并到 `main`，不因本次记录提交而创建或合并 PR。
 - 单电机旧版短时程序已让实物沿同一方向小幅转动；并非原地来回摆。
 - **最新版已改成持续旋转并烧录校验成功，持续运行的实物效果尚待用户反馈。**
 - 最新固件：PA0=STEP、PA1=DIR、PA4=EN；按 RESET，约 1 秒后起转，从 50Hz 加速到 200Hz 后持续同方向旋转。下载结束时 CPU 暂停、EN 为高；RESET 会启动，不是停止键；停止断开电机电池。
@@ -34,7 +34,7 @@
 | 2026-11-03 | [001：项目梳理、上位机与单电机持续旋转](2026-11-03-001-project-and-motor.md) | 赛题、机构、分工、接线、排错及固件；末尾继续记录本次仓库布局与项目文件导入 |
 | 2026-11-04 | [002：香橙派首次连接与简单计算入门](2026-11-04-002-orangepi-first-use.md) | 初期入门和连接方案；当时尚未连接实物，后续结果见 004/005 |
 | 2026-11-07 | [004：Orange Pi 5 Plus 烧录与供电](2026-11-07-004-orangepi5plus-ubuntu-flash-guide.md) | 镜像核对、首次验证失败与供电接法；2026-11-08 补记用户确认桌面启动 |
-| 2026-11-07 | [005：香橙派网线直连、SSH 与网络](2026-11-07-005-orangepi-no-keyboard-network.md) | 桌面照片、后续烧录验证通过、SSH 与 NAT/ping；板端时钟和 HTTPS 待处理 |
+| 2026-11-07～08 | [005：香橙派网线直连、SSH 与网络](2026-11-07-005-orangepi-no-keyboard-network.md) | 桌面、SSH、NAT、外网 ping 已确认；HTTPS 因日期错误未过，中文语言待核实系统后设置；下载页与合并计划见首次上电汇总 |
 
 本次记录覆盖此前这一个长对话中积累的内容；无法确认的早期发生日期未逐条推断。
 
