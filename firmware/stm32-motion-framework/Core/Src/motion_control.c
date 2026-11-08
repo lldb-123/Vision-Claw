@@ -9,6 +9,10 @@ static uint32_t phase[MOTION_AXIS_COUNT], high_ticks, pulse_left[MOTION_AXIS_COU
 static uint32_t home_ticks[MOTION_AXIS_COUNT];
 static bool stopping[MOTION_AXIS_COUNT];
 static unsigned home_stage[MOTION_AXIS_COUNT];
+static GPIO_PinState limit_stable[MOTION_AXIS_COUNT][2];
+static GPIO_PinState limit_last[MOTION_AXIS_COUNT][2];
+static uint32_t limit_ticks[MOTION_AXIS_COUNT][2];
+static uint32_t home_steps[MOTION_AXIS_COUNT];
 static uint32_t enter(void){uint32_t p=__get_PRIMASK();__disable_irq();return p;}
 static void leave(uint32_t p){__set_PRIMASK(p);}
 static GPIO_TypeDef *step_port[] = {X_STEP_GPIO_Port,Y_STEP_GPIO_Port};
@@ -16,15 +20,18 @@ static uint16_t step_pin[] = {X_STEP_Pin,Y_STEP_Pin};
 static GPIO_TypeDef *dir_port[] = {X_DIR_GPIO_Port,Y_DIR_GPIO_Port};
 static uint16_t dir_pin[] = {X_DIR_Pin,Y_DIR_Pin};
 
-static bool axis_limit(motion_axis_id_t id, int dir) { GPIO_PinState a,b; if(id==MOTION_AXIS_X){a=HAL_GPIO_ReadPin(X_MIN_GPIO_Port,X_MIN_Pin); b=HAL_GPIO_ReadPin(X_MAX_GPIO_Port,X_MAX_Pin);} else {a=HAL_GPIO_ReadPin(Y_MIN_GPIO_Port,Y_MIN_Pin); b=HAL_GPIO_ReadPin(Y_MAX_GPIO_Port,Y_MAX_Pin);} return (dir<0&&a==MOTION_LIMIT_ACTIVE)||(dir>0&&b==MOTION_LIMIT_ACTIVE); }
-void Motion_Init(void){ high_ticks=(MOTION_TICK_HZ*MOTION_STEP_HIGH_US+999999u)/1000000u; if(!high_ticks)high_ticks=1; for(int i=0;i<2;i++){ax[i]=(motion_axis_t){0,0,0,2000,4000,AXIS_IDLE,0,0,0};phase[i]=0;pulse_left[i]=0;stopping[i]=false;home_stage[i]=0;HAL_GPIO_WritePin(step_port[i],step_pin[i],GPIO_PIN_RESET);} }
+static GPIO_PinState read_limit(int i,int side){if(i==0)return HAL_GPIO_ReadPin(GPIOB,side?X_MAX_Pin:X_MIN_Pin);return HAL_GPIO_ReadPin(GPIOB,side?Y_MAX_Pin:Y_MIN_Pin);}
+static void update_limits(int i){for(int side=0;side<2;side++){GPIO_PinState raw=read_limit(i,side);if(raw!=limit_last[i][side]){limit_last[i][side]=raw;limit_ticks[i][side]=0;}else if(limit_ticks[i][side]<MOTION_LIMIT_DEBOUNCE_TICKS)limit_ticks[i][side]++;if(limit_ticks[i][side]>=MOTION_LIMIT_DEBOUNCE_TICKS)limit_stable[i][side]=raw;}}
+static bool axis_limit(motion_axis_id_t id,int dir){return dir<0?limit_stable[id][0]==MOTION_LIMIT_ACTIVE:limit_stable[id][1]==MOTION_LIMIT_ACTIVE;}
+void Motion_Init(void){ high_ticks=(MOTION_TICK_HZ*MOTION_STEP_HIGH_US+999999u)/1000000u; if(!high_ticks)high_ticks=1; for(int i=0;i<2;i++){limit_last[i][0]=limit_last[i][1]=GPIO_PIN_SET;limit_stable[i][0]=limit_stable[i][1]=GPIO_PIN_SET;limit_ticks[i][0]=limit_ticks[i][1]=MOTION_LIMIT_DEBOUNCE_TICKS;update_limits(i);ax[i]=(motion_axis_t){0,0,0,2000,4000,AXIS_IDLE,0,0,0};phase[i]=0;pulse_left[i]=0;stopping[i]=false;home_stage[i]=0;HAL_GPIO_WritePin(step_port[i],step_pin[i],GPIO_PIN_RESET);} }
 void Motion_Start(void){ HAL_TIM_Base_Start_IT(&htim6); }
 static bool valid(motion_axis_id_t id,float s){return (unsigned)id<2 && isfinite(s) && s>=MOTION_MIN_SPEED && s<=MOTION_MAX_SPEED;}
 bool Motion_Goto(motion_axis_id_t id,int32_t p,float s){
  if(!valid(id,s))return false;
  uint32_t k=enter();
- bool ok=ax[id].state==AXIS_IDLE||ax[id].state==AXIS_LIMIT;
+ bool ok=ax[id].homed&&(ax[id].state==AXIS_IDLE||ax[id].state==AXIS_LIMIT);
  int d=p>ax[id].position?1:-1;
+ if(p<0)ok=false;
  if(p!=ax[id].position&&axis_limit(id,d))ok=false;
  if(ok&&p!=ax[id].position){ax[id].target=p;ax[id].max_speed=s;ax[id].speed=MOTION_MIN_SPEED;ax[id].state=AXIS_MOVING;phase[id]=0;stopping[id]=false;HAL_GPIO_WritePin(dir_port[id],dir_pin[id],d>0?GPIO_PIN_SET:GPIO_PIN_RESET);}
  leave(k);return ok;
@@ -50,11 +57,12 @@ bool Motion_Snapshot(motion_axis_id_t id,motion_axis_t *out){if((unsigned)id>=2|
 void Motion_TickISR(void){
  if(HAL_GPIO_ReadPin(ESTOP_GPIO_Port,ESTOP_Pin)==MOTION_ESTOP_ACTIVE){Motion_EStop();return;}
  for(int i=0;i<2;i++){
+  update_limits(i);
   bool falling=false;if(pulse_left[i]&&!--pulse_left[i]){HAL_GPIO_WritePin(step_port[i],step_pin[i],GPIO_PIN_RESET);falling=true;}
   motion_axis_t *a=&ax[i];if(a->state!=AXIS_MOVING&&a->state!=AXIS_HOMING)continue;
   int d;
   if(a->state==AXIS_HOMING){
-   if(++home_ticks[i]>30u*MOTION_TICK_HZ){done(i,AXIS_FAULT);continue;}
+   if(++home_ticks[i]>MOTION_HOME_TIMEOUT_S*MOTION_TICK_HZ||home_steps[i]>MOTION_HOME_MAX_STEPS){done(i,AXIS_FAULT);continue;}
    bool hit=axis_limit((motion_axis_id_t)i,-1);
    d=(home_stage[i]==1||home_stage[i]==3)?1:-1;
    if(d>0&&axis_limit((motion_axis_id_t)i,1)){done(i,AXIS_FAULT);continue;}
@@ -62,7 +70,7 @@ void Motion_TickISR(void){
    if(d<0&&hit){if(home_stage[i]==4){a->position=0;done(i,AXIS_IDLE);a->homed=true;}else{home_stage[i]=3;phase[i]=0;HAL_GPIO_WritePin(dir_port[i],dir_pin[i],GPIO_PIN_SET);}continue;}
   }else{
    int64_t delta=(int64_t)a->target-a->position;if(!delta){done(i,AXIS_IDLE);continue;}d=delta>0?1:-1;
-   if(axis_limit((motion_axis_id_t)i,d)){a->homed=false;done(i,AXIS_LIMIT);continue;}
+   if(axis_limit((motion_axis_id_t)i,d)){if(a->target==0&&d<0&&a->position>0){a->position=0;done(i,AXIS_IDLE);a->homed=true;}else{a->homed=false;done(i,AXIS_LIMIT);}continue;}
    float distance=(float)(delta>0?delta:-delta);float dv=a->accel/MOTION_TICK_HZ;
    if(stopping[i]||a->speed*a->speed>=2*a->accel*distance){a->speed-=dv;if(a->speed<MOTION_MIN_SPEED){if(stopping[i]){done(i,AXIS_IDLE);continue;}a->speed=MOTION_MIN_SPEED;}}
    else{a->speed+=dv;if(a->speed>a->max_speed)a->speed=a->max_speed;}
@@ -70,9 +78,9 @@ void Motion_TickISR(void){
   uint32_t interval=(uint32_t)(MOTION_TICK_HZ/a->speed);if(interval<high_ticks+1)interval=high_ticks+1;
   if(++phase[i]>=interval&&!pulse_left[i]&&!falling){
    if((d>0&&a->position==INT32_MAX)||(d<0&&a->position==INT32_MIN)){a->homed=false;done(i,AXIS_FAULT);continue;}
-   phase[i]=0;HAL_GPIO_WritePin(step_port[i],step_pin[i],GPIO_PIN_SET);pulse_left[i]=high_ticks;a->position+=d;
+   phase[i]=0;HAL_GPIO_WritePin(step_port[i],step_pin[i],GPIO_PIN_SET);pulse_left[i]=high_ticks;a->position+=d;home_steps[i]++;
   }
  }
 }
-void Motion_Service(void){for(int i=0;i<2;i++){ax[i].limit_min=(HAL_GPIO_ReadPin(i?Y_MIN_GPIO_Port:X_MIN_GPIO_Port,i?Y_MIN_Pin:X_MIN_Pin)==MOTION_LIMIT_ACTIVE);ax[i].limit_max=(HAL_GPIO_ReadPin(i?Y_MAX_GPIO_Port:X_MAX_GPIO_Port,i?Y_MAX_Pin:X_MAX_Pin)==MOTION_LIMIT_ACTIVE);}}
+void Motion_Service(void){for(int i=0;i<2;i++){update_limits(i);ax[i].limit_min=axis_limit((motion_axis_id_t)i,-1);ax[i].limit_max=axis_limit((motion_axis_id_t)i,1);}}
 
