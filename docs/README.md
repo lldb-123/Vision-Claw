@@ -7,6 +7,9 @@
 | 材料申购 | [原始采购清单](procurement/附件：智能分拣材料申购清单-戚翰雯.xlsx) | 保留原表，采购数量与最终上机数量可能不同 |
 | 系统架构 | [队内架构图](architecture/system-architecture.png) | 早期参考架构，最终接线与四电机分工需结合当前状态 |
 | 文件来源与迁移 | [materials.md](materials.md) | 旧电脑路径到仓库路径的对应关系 |
+| 视觉系统六方案调研 | [完整比较与实施设计](vision-system-options-2026-11-04.md) | 2026-11-04：以现有 L 型挡板拨料为主，含抓取扩展、RKNN、状态机、二维码与训练；尚未实物验证 |
+
+调研证据：[仓库审计](research/2026-11-04-repository-audit.md)、[RKNN 部署](research/2026-11-04-rknn-evidence.md)、[视觉/抓取/二维码](research/2026-11-04-perception-evidence.md)。
 
 ## 相关代码和硬件
 
