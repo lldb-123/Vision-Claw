@@ -18,6 +18,7 @@
 - 整机上位机演示工程已导入 [software/upper-computer](../software/upper-computer/README.md)，尚未完成整机实物联调。
 - **Orange Pi 5 Plus 已由用户实物确认启动 Ubuntu 图形桌面。** 64 GB TF 卡首次 Etcher 验证失败，后来用户报告验证成功；首次上电的红灯、蓝绿色灯只证明当时有通电反应，成功启动以之后的桌面照片和用户确认为准。板上实际发行版版本及最终烧录镜像文件名尚未命令核对，UBEC 电池供电的带载电压/极性也未测量归档。见[首次上电汇总](../experiments/orangepi-5-plus/2026-11-08-first-boot.md)、[004](2026-11-07-004-orangepi5plus-ubuntu-flash-guide.md)。
 - Windows 与板卡网线直连、SSH 登录及基本外网 ping 已由用户验证；板端时钟仍曾落后，HTTPS 证书检查失败。网络细节见[005](2026-11-07-005-orangepi-no-keyboard-network.md)。这些结果不代表视觉或分拣程序已部署到板卡。
+- 首次上电汇总及相关对话记录已推送至 `codex/orangepi-bringup` 分支，待用户创建指向 `main` 的 PR；当前 `main` 尚未合入这些文件。
 - 单电机旧版短时程序已让实物沿同一方向小幅转动；并非原地来回摆。
 - **最新版已改成持续旋转并烧录校验成功，持续运行的实物效果尚待用户反馈。**
 - 最新固件：PA0=STEP、PA1=DIR、PA4=EN；按 RESET，约 1 秒后起转，从 50Hz 加速到 200Hz 后持续同方向旋转。下载结束时 CPU 暂停、EN 为高；RESET 会启动，不是停止键；停止断开电机电池。
