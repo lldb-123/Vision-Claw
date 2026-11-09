@@ -60,11 +60,11 @@ static void command(char *s){
  else if(strncmp(s,"MOVE_MM ",8)==0||strncmp(s,"GOTO_MM ",8)==0){
   char *v[5];unsigned count=0;char *token=strtok(s," ");while(token&&count<5){v[count++]=token;token=strtok(NULL," ");}
   if(count!=4||strlen(v[1])!=1||(v[1][0]!='X'&&v[1][0]!='Y')){reply("ERR FORMAT\r\n");return;}
-  char *end;errno=0;float mm=strtof(v[2],&end);bool relative=strcmp(v[0],"MOVE_MM")==0;float maxmm=v[1][0]=='X'?X_MAX_MM:Y_MAX_MM;if(errno||*end||!isfinite(mm)||(!relative&&(mm<0||mm>maxmm))){reply("ERR RANGE\r\n");return;}
+  char *end;errno=0;float mm=strtof(v[2],&end);bool relative=strcmp(v[0],"MOVE_MM")==0;float maxmm=v[1][0]=='X'?X_MAX_MM:Y_MAX_MM;if(errno||*end||!isfinite(mm)||(relative?fabsf(mm)>maxmm:(mm<0||mm>maxmm))){reply("ERR RANGE\r\n");return;}
   errno=0;float mmps=strtof(v[3],&end);if(errno||*end||!isfinite(mmps)||mmps<=0){reply("ERR SPEED\r\n");return;}
   motion_axis_id_t i=v[1][0]=='X'?MOTION_AXIS_X:MOTION_AXIS_Y;float k=i==MOTION_AXIS_X?X_STEPS_PER_MM:Y_STEPS_PER_MM;
   if(HAL_GPIO_ReadPin(GPIOA,i==MOTION_AXIS_X?GPIO_PIN_4:GPIO_PIN_5)==GPIO_PIN_SET){reply("ERR AXIS_DISABLED\r\n");return;}
-  int32_t steps=(int32_t)lroundf(mm*k);float stepsps=mmps*k;if(strcmp(v[0],"MOVE_MM")==0)ok=Motion_MoveRelative(i,steps,stepsps);else ok=Motion_Goto(i,steps,stepsps);
+  int32_t steps=(int32_t)lroundf(mm*k);float stepsps=mmps*k;if(relative)ok=Motion_MoveRelative(i,steps,stepsps);else ok=Motion_Goto(i,steps,stepsps);
  }else if(strncmp(s,"MOVE ",5)==0||strncmp(s,"GOTO ",5)==0){
   char *v[5];unsigned count=0;char *token=strtok(s," ");
   while(token&&count<5){v[count++]=token;token=strtok(NULL," ");}
@@ -83,5 +83,3 @@ static void command(char *s){
 int main(void){init();reply("READY XYZ F407 HSI_PLL84 UART2_PD5_PD6\r\n");char line[96];unsigned n=0;bool overflow=false;uint8_t c;
  while(1){Motion_Service();Servo_Service();if(HAL_UART_Receive(&huart2,&c,1,1)==HAL_OK){if(c=='\r'||c=='\n'){if(overflow)reply("ERR LINE_TOO_LONG\r\n");else if(n){line[n]=0;command(line);}n=0;overflow=false;}else if(n<sizeof line-1&&!overflow)line[n++]=(char)c;else overflow=true;}}
 }
-
-
