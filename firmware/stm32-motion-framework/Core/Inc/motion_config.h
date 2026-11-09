@@ -16,8 +16,9 @@ extern UART_HandleTypeDef huart2;
 #define Y_MIN_MM             0.0f
 #define X_MAX_MM             260.0f
 #define Y_MAX_MM             260.0f
+#define MOTION_LIMIT_TRIGGER_TICKS  50u
 #define MOTION_LIMIT_DEBOUNCE_TICKS 500u
-#define MOTION_HOME_MAX_STEPS       400000u
+#define MOTION_HOME_MAX_STEPS       ((uint32_t)((X_MAX_MM + 20.0f) * X_STEPS_PER_MM))
 #define MOTION_HOME_TIMEOUT_S       120u
 #define X_STEP_GPIO_Port GPIOA
 #define X_STEP_Pin       GPIO_PIN_0
