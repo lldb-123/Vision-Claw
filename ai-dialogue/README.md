@@ -10,16 +10,21 @@
 
 ## 当前状态
 
-更新：2026-11-08。
+更新：2026-11-11。
 
 - 目标：工创赛智能分拣，视觉识别物体，X/Y/Z 拨料机构配合六槽分类转盘完成分类。
+- 中期检查视觉范围：YOLOv8n 检测正方体、球体、圆柱体、三棱柱、圆锥体、四面体，传统视觉识别黑、白、红、黄、深蓝、浅蓝；六个形状标签按 ID 0–5 为 `cube/sph/cyl/tpri/cone/tet`。详见[009](2026-11-10-009-yolo-color-shape-annotation.md)、[拍摄方案](../docs/midterm-yolov8n-dataset-800-plan-2026-11-11.md)。
+- 当前按约 800 张含盲测的上限分批采集：先 96 张打通标注/训练，约 400 张评估是否继续；截至本次尚未正式采集、训练或得到 `best.pt`。Windows 本地[训练工程](../software/midterm-yolo-model/README.md)已生成，目标先是电脑本地推理，不要求 Orange Pi 部署。
+- 用户已用 AnyLabeling 标注并导出一张练习图，原电脑桌面导出 `classes.txt` 为 `cone,cube,cyl,sph,tpri`，与固定 ID 顺序不同；代码按类名重映射。该图 7 个框、没有 `tet`，不能作为六类模型训练集。详见[010](2026-11-11-010-midterm-dataset-plan.md)。
+- 训练环境只读核对：RTX 5060 Laptop GPU 约 8 GiB，默认 Python 的 PyTorch 为 CPU 版；另有 uv 管理的 Python 3.12.13，尚未在新工程安装 GPU PyTorch/Ultralytics。代码静态检查与单图标签审计通过，未运行训练。
+- 视觉多方案调研及上位机既有范围见[006](2026-11-04-006-vision-options-research.md)和[完整调研](../docs/vision-system-options-2026-11-04.md)；中期检查的六形状目标以本次决定为准。
 - 用户负责视觉、通信及上位机整体框架；队友主要负责 STM32 和电机底层。正式通信接口仍待商议。
 - 四个电机：X/Y 为 42 步进电机，Z 为 MG90S 舵机，分类转盘为 DS3120 舵机。
 - 整机上位机演示工程已导入 [software/upper-computer](../software/upper-computer/README.md)，尚未完成整机实物联调。
-- **Orange Pi 5 Plus 已由用户实物确认启动图形桌面，并通过 SSH 登录。** 64 GB TF 卡首次 Etcher 验证失败，后来用户报告验证成功；板上实际发行版版本及最终烧录镜像文件名尚未命令核对。用户提供的 [Orange Pi 5 Plus 镜像下载页](https://www.fujianleji.com/orange/Orange_Pi_5_Plus_download.html?utm_source=chatgpt.com) 有 Ubuntu 入口，但不是单个 `.img` 直链；此前校验过的 Joshua Riek 镜像不能直接认定为当前运行镜像。供电带载电压/极性仍待测，详见[首次上电汇总](../experiments/orangepi-5-plus/2026-11-08-first-boot.md)、[004](2026-11-07-004-orangepi5plus-ubuntu-flash-guide.md)。
-- Windows 与板卡网线直连 `192.168.50.1/24` ↔ `192.168.50.2`，SSH 和外网 IP/域名 ping 已由用户验证；电脑 WinNAT 已开启，板端 NetworkManager 已保存网关，重启持久性尚未验证。板端日期仍停在 2026-08-31，HTTPS 报证书“尚未生效”。中文语言设置被提出但尚未执行，先核实板端发行版。网络细节见[005](2026-11-07-005-orangepi-no-keyboard-network.md)。这些结果不代表视觉或分拣程序已部署。
+- **Orange Pi 5 Plus 已由用户实物确认启动图形桌面，并通过 SSH 登录。** 11月10日进一步从 SSH 实测 Orange Pi 1.2.2 Jammy / Ubuntu 22.04.5 ARM64、Python 3.10.12；系统时间已同步，PyPI HTTPS 返回 200，`apt update` 与 `python3-pip`、`python3-venv` 安装完成。项目 NumPy/OpenCV/pySerial、相机、STM32 及视觉程序尚未在板端部署。详见[008](2026-11-10-008-orangepi-environment-audit.md)；首次烧录与供电历史见[004](2026-11-07-004-orangepi5plus-ubuntu-flash-guide.md)。
+- Windows 与板卡网线直连 `192.168.50.1/24` ↔ `192.168.50.2`；SSH 和外网连通曾验证。旧记录中的“板端日期仍停在 2026-08-31、HTTPS 证书未生效”已由 11月10日实测结果替代。网络历史见[005](2026-11-07-005-orangepi-no-keyboard-network.md)、最新状态见[008](2026-11-10-008-orangepi-environment-audit.md)。
 - 已整理 [Orange Pi 5 Plus 初始化与规范使用手册](../docs/orangepi-5-plus-initialization-guide.md)，包含系统/供电、网络与校时、中文、SSH、Python、相机、串口、训练/转换/板端 RKNN 环境、服务、备份及分阶段验收。**本轮只编写和校验文档，没有执行板端初始化，也未合并分支。** 优先按实际系统身份、校时、HTTPS/apt、中文、重启验证的顺序推进。
-- 当前远端有 `main`、`codex/vision-yolo`、`codex/orangepi-bringup` 三条分支线；初始化记录保留在 `codex/orangepi-bringup`。用户计划等板卡初始化整理完成后、**正式开发 YOLO 和部署模型之前**再合并三条主线。目前未合并到 `main`，不因本次记录提交而创建或合并 PR。
+- 截至本次同步，远端 `main` 已包含 Orange Pi 首次上电与 STM32 运动控制分支的合并；`codex/vision-yolo` 仍单独保留。本次中期检查分支以最新 `main` 为起点，不自动合并其他分支或部署模型。
 - 单电机旧版短时程序已让实物沿同一方向小幅转动；并非原地来回摆。
 - **最新版已改成持续旋转并烧录校验成功，持续运行的实物效果尚待用户反馈。**
 - 最新固件：PA0=STEP、PA1=DIR、PA4=EN；按 RESET，约 1 秒后起转，从 50Hz 加速到 200Hz 后持续同方向旋转。下载结束时 CPU 暂停、EN 为高；RESET 会启动，不是停止键；停止断开电机电池。
@@ -34,8 +39,13 @@
 | --- | --- | --- |
 | 2026-11-03 | [001：项目梳理、上位机与单电机持续旋转](2026-11-03-001-project-and-motor.md) | 赛题、机构、分工、接线、排错及固件；末尾继续记录本次仓库布局与项目文件导入 |
 | 2026-11-04 | [002：香橙派首次连接与简单计算入门](2026-11-04-002-orangepi-first-use.md) | 初期入门和连接方案；当时尚未连接实物，后续结果见 004/005 |
+| 2026-11-04 | [006：视觉、拨料与抓取六方案调研](2026-11-04-006-vision-options-research.md) | 旧视觉候选方案与研究证据；尚未训练或实物验证 |
 | 2026-11-07 | [004：Orange Pi 5 Plus 烧录与供电](2026-11-07-004-orangepi5plus-ubuntu-flash-guide.md) | 镜像核对、首次验证失败与供电接法；2026-11-08 补记用户确认桌面启动 |
 | 2026-11-07～08 | [005：香橙派网线直连、SSH 与网络](2026-11-07-005-orangepi-no-keyboard-network.md) | 桌面、SSH、NAT、外网 ping 已确认；HTTPS 因日期错误未过，中文待设置；已补完整初始化手册及环境/验收计划，尚未在板端执行 |
+| 2026-11-09 | [007：Windows 本地 YOLO 训练练习讨论](2026-11-09-007-local-yolo-practice.md) | 公开数据集入门路线；未下载或训练 |
+| 2026-11-10 | [008：Orange Pi 5 Plus 前置环境实测](2026-11-10-008-orangepi-environment-audit.md) | SSH 核对系统、网络和 NPU，完成 apt/pip/venv 前置安装；尚未部署视觉 |
+| 2026-11-10，11日续 | [009：中期检查颜色与形状识别方案](2026-11-10-009-yolo-color-shape-annotation.md) | 确定六形状 YOLO＋传统颜色，分批采集与预标注；尚未正式训练 |
+| 2026-11-11 | [010：中期检查数据集及训练工程](2026-11-11-010-midterm-dataset-plan.md) | 约 800 张拍摄计划、AnyLabeling 单图标注与导出、RTX 5060 训练代码和本次分支同步 |
 
 本次记录覆盖此前这一个长对话中积累的内容；无法确认的早期发生日期未逐条推断。
 

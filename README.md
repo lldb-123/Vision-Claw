@@ -9,6 +9,7 @@ Bai.Y.M,school of Computer Science and technology,HUST
 - 看提交的方案：[team.pdf](docs/competition/team.pdf)。
 - 看队友的电控初版：[电控框架说明](firmware/README.md)，原始设计和源码在其下方目录。
 - 运行上位机：[software/upper-computer](software/upper-computer/README.md)。
+- 中期检查六形状 YOLOv8n：[拍摄方案](docs/midterm-yolov8n-dataset-800-plan-2026-11-11.md)与[本地训练工程](software/midterm-yolo-model/README.md)。
 - 查看已经烧录过的单电机实验：[experiments/single-motor](experiments/single-motor/README.md)。
 - 查看 Orange Pi 5 Plus 首次上电和桌面启动：[实物记录](experiments/orangepi-5-plus/2026-11-08-first-boot.md)。
 - 找采购清单、架构图和命题草稿：[资料索引](docs/README.md)。
@@ -29,7 +30,8 @@ Vision-Claw/
 │   ├── procurement/                  材料申购清单
 │   └── architecture/                 队内系统架构图
 ├── software/
-│   └── upper-computer/               Python 上位机、视觉、协议、模拟器与测试
+│   ├── upper-computer/               Python 上位机、视觉、协议、模拟器与测试
+│   └── midterm-yolo-model/           六形状数据准备、训练和推理代码
 ├── firmware/
 │   ├── README.md                     电控初版的范围和接入关系
 │   └── stm32-motion-framework/       队友原始 Core/、设计文档和说明

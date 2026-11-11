@@ -1,0 +1,3 @@
+# 先按 PyTorch 官网选择与 RTX 5060 兼容的 Windows CUDA 版 torch/torchvision。
+ultralytics
+PyYAML
