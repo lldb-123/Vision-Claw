@@ -131,3 +131,9 @@
 - 原电脑 AnyLabeling 导出 `annotation_export_v1` 已只读审计通过：226 张有目标图片、226 个标签、256 个矩形框，原类别顺序 `cone,cube,cyl,sph,tet,tpri`；六类名均合法。另把标注批次中的 10 张空盘及同名空 `.txt` 补入独立的 `annotation_export_ready_v1`，保留原导出不改；创建 `splits_first_v1.csv`，按每个形状×颜色组 5 train/1 val，混合和空盘各 8 train/2 val，共 196 train、40 val。生成原电脑 `dataset_v1`。
 - 在仓库分支工作树新增 `datasets/midterm-yolo-v1/`，含 236 张 PNG、236 个同名 YOLO `.txt`、`data.yaml`、`classes.txt`、`splits.csv`、`selection.csv`、摘要和说明，约 160 MiB。仓库版 `data.yaml` 去除原电脑 F 盘绝对路径，六类 ID 固定为 `cube,sph,cyl,tpri,cone,tet`；原电脑其余 462 张未标注候选图未进入该训练数据集。
 - 仓库版 `train.py` 的只读数据检查通过：196/40 图，所有单件文件名前缀与重排后的唯一框类一致；10 张空盘标签为空，10 张混合图有框。当前没有独立测试集，尚未运行训练。GitHub 推送和环境检查在本节记录时仍待完成。
+
+## 2026-11-11 续：GitHub 数据集同步完成与 GPU 环境检查
+
+- `codex/midterm-vision-model` 上提交 `22691a8dc11a4f6769debe59aaf4bbb8ea3435d4` 已推送，`git ls-remote` 返回相同 SHA。提交含 236 张图片、236 个 YOLO 标签、相对路径 `data.yaml`、划分/来源清单、数据摘要、捕图脚本及视觉文档；未暂存或提交同工作树里其他人的 STM32 固件改动。
+- 原电脑 `F:\gcs_medium_check_YOLO_model\.venv` 使用 Python 3.12.13，安装官方 CUDA 13.0 版 `torch 2.14.1+cu130`、`torchvision 0.29.1+cu130`、`ultralytics 8.4.210`、`PyYAML 6.0.3`。RTX 5060 Laptop GPU（驱动 582.05）上 `torch.cuda.is_available()` 为 True，真实 128×128 CUDA 矩阵运算成功。Ultralytics `check_det_dataset(..., autodownload=False)` 正确解析仓库版 `data.yaml` 的 train/val 路径和六类名称；原电脑已下载并加载 `yolov8n.pt` 预训练权重。未调用 `train.py` 或 `model.train`，没有模型训练、训练指标或 `best.pt`。
+- 当前首轮多件训练照片只有 `small_mix` 前 10 张，共 40 个框且只涉及 cube 与 cyl；其余四形状在本版仅有单件图。此限制已写入数据集 README，正式演示若包括六形状同时出现，需补标其余混合照片。独立最终测试集尚未建立。虚拟环境和权重未同步仓库。

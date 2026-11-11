@@ -1,6 +1,6 @@
 # 工创赛中期检查：YOLOv8n 六形状训练工程
 
-状态：**首轮数据集已准备，尚未启动训练。** [仓库数据集](../../datasets/midterm-yolo-v1/README.md)含 236 张图片及同名 YOLO 标签，训练/验证为 196/40，六类 ID 已重排。原电脑训练工程位于 `F:\gcs_medium_check_YOLO_model`；用户要求先同步 GitHub 并检查环境，再决定何时训练。
+状态：**首轮数据集已同步，GPU 环境已在原电脑验证，尚未启动训练。** [仓库数据集](../../datasets/midterm-yolo-v1/README.md)含 236 张图片及同名 YOLO 标签，训练/验证为 196/40，六类 ID 已重排。原电脑训练工程位于 `F:\gcs_medium_check_YOLO_model`；虚拟环境和预训练权重只在原电脑，本仓库不包含。
 
 ## 类别约定
 
@@ -58,30 +58,24 @@ Set-Location .\software\midterm-yolo-model
 
 ## RTX 5060 训练环境
 
-本机已读到 RTX 5060 Laptop GPU（约 8 GiB，驱动 582.05）。系统默认 Python 3.14 的 PyTorch 是 `+cpu`，CUDA 不可用，不能用它训练。本机 `py -0p` 能列出 uv 管理的 Python 3.12.13，但 `py -3.12` **不能**选中它；本工程使用已核实的解释器完整路径创建独立环境：
+本机 RTX 5060 Laptop GPU 约 8 GiB，驱动 582.05；系统默认 Python 3.14 的 PyTorch 为 CPU 版。本工程使用独立的 Python 3.12.13 虚拟环境。官方 [PyTorch 2.14.1 的 Windows CUDA 13.0 安装命令](https://pytorch.org/get-started/previous-versions/)适配当前驱动；[PyTorch 的 Blackwell 说明](https://pytorch.org/blog/pytorch-2-12-release-blog/)给出的 Windows 最低驱动为 580.88。
 
 ```powershell
 Set-Location .\software\midterm-yolo-model
-& 'C:\Users\Lenovo\AppData\Roaming\uv\python\cpython-3.12.13-windows-x86_64-none\python.exe' -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
+uv venv .venv --python 'C:\Users\Lenovo\AppData\Roaming\uv\python\cpython-3.12.13-windows-x86_64-none\python.exe'
+uv pip install --python .\.venv\Scripts\python.exe torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cu130
+uv pip install --python .\.venv\Scripts\python.exe -r requirements.txt
+.\.venv\Scripts\python.exe -c "import torch; print(torch.__version__,torch.version.cuda,torch.cuda.is_available(),torch.cuda.get_device_name(0))"
 ```
 
-然后从 [PyTorch 官方安装页](https://pytorch.org/get-started/locally/)选择 **Windows / Pip / Python / 支持 RTX 50 系列的 CUDA 12.8 或更新构建**，把官网给出的安装命令在这个 `.venv` 中执行；再运行：
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -c "import torch; print(torch.__version__, torch.version.cuda, torch.cuda.is_available(), torch.cuda.get_device_name(0))"
-```
-
-最后一行应显示 CUDA 为 `True` 且设备是 RTX 5060。`train.py` 还会执行一次真实 CUDA 矩阵运算，避免只看见显卡却使用了不兼容的 PyTorch 构建；失败时停止，不自动改用 CPU。[PyTorch 关于 Blackwell `sm_120` 支持的说明](https://discuss.pytorch.org/t/pytorch-support-for-sm-120-nvidia-geforce-rtx-5060/220941)
-
+完成后须看到 CUDA `True` 和 RTX 5060，并运行一次 CUDA 张量运算检查；这不启动模型训练。本次用户要求环境就绪后仍暂停训练。
 ## 训练与新照片推理
 
 有至少六类的 train/val 后，先短跑 3 轮检查链路，再正式训练：
 
 ```powershell
-.\.venv\Scripts\python.exe .\train.py --data '.\dataset_v1\data.yaml' --smoke
-.\.venv\Scripts\python.exe .\train.py --data '.\dataset_v1\data.yaml' --epochs 100 --imgsz 640 --batch 8
+.\.venv\Scripts\python.exe .\train.py --data '..\..\datasets\midterm-yolo-v1\data.yaml' --smoke
+.\.venv\Scripts\python.exe .\train.py --data '..\..\datasets\midterm-yolo-v1\data.yaml' --epochs 100 --imgsz 640 --batch 8
 ```
 
 训练固定使用预训练 `yolov8n.pt` 和 CUDA GPU 0；Windows 默认 `workers=0`。首次训练若显存不足，改 `--batch 4`。输出位于 `runs/train_日期时间/weights/best.pt`，同目录保存训练配置、曲线、数据文件副本及环境/标签摘要。`--smoke` 的权重仅用于检查流程，不作为中期模型。

@@ -17,7 +17,7 @@
 - 当前按约 800 张含盲测的上限分批采集：先 96 张打通标注/训练，约 400 张评估是否继续；单件已拍很多时，无遮挡多件可缩到约 80–120 张，按错例继续补拍；原电脑固定相机目录已清点到 698 张正式候选照片（36 形状×颜色组、43 张混合、30 张空盘）；仅抽样目视检查；原电脑已建立 236 张首轮 AnyLabeling 标注副本和操作指南，首轮 226 张有目标图片已保存 AnyLabeling JSON（256 框），10 张空盘无 JSON；已导出 YOLO 并准备[首轮数据集](../datasets/midterm-yolo-v1/README.md)：236 张图、236 个同名标签，196 train / 40 val；尚未训练或得到 `best.pt`。Windows 本地[训练工程](../software/midterm-yolo-model/README.md)已生成，并将固定相机脚本改为 Enter 选组、空格连续拍、B 换组、Q 退出；旧 captures 目录的 8 张照片因自动审核拒绝删除仍在原电脑，新照片存独立 dataset_photos。相机单帧探测通过，正式候选照片已采集并完成首轮数据集。目标先是电脑本地推理，不要求 Orange Pi 部署。
 - 用户已用 AnyLabeling 标注并导出一张练习图，原电脑桌面导出 `classes.txt` 为 `cone,cube,cyl,sph,tpri`，与固定 ID 顺序不同；代码按类名重映射。该图 7 个框、没有 `tet`，不能作为六类模型训练集。详见[010](2026-11-11-010-midterm-dataset-plan.md)。
 - 正式拍摄前已从当前外接相机取得一张 1280×720 托盘画面：斜视角可见中央方块侧面、托盘完整入镜；左右外部插排/设备/线缆和左上拨料件进入画面。建议拍摄前整理画面边缘或固定托盘 ROI，并用白、黑、深蓝、浅蓝实物核对曝光与色差。仅是单帧人工检查，尚未正式采集或训练；详见[010 相机续记](2026-11-11-010-midterm-dataset-plan.md#2026-11-11-续正式拍摄前检查当前相机画面)。
-- 训练环境只读核对：RTX 5060 Laptop GPU 约 8 GiB，默认 Python 的 PyTorch 为 CPU 版；另有 uv 管理的 Python 3.12.13，尚未在新工程安装 GPU PyTorch/Ultralytics。代码静态检查与单图标签审计通过，未运行训练。
+- 原电脑 RTX 5060 Laptop GPU 约 8 GiB 的训练环境已准备：Python 3.12.13、PyTorch 2.14.1+cu130、Ultralytics 8.4.210，真实 CUDA 张量运算与仓库数据配置解析通过；预训练 `yolov8n.pt` 已加载，**未开始训练**。
 - 视觉多方案调研及上位机既有范围见[006](2026-11-04-006-vision-options-research.md)和[完整调研](../docs/vision-system-options-2026-11-04.md)；中期检查的六形状目标以本次决定为准。
 - 用户负责视觉、通信及上位机整体框架；队友主要负责 STM32 和电机底层。正式通信接口仍待商议。
 - 四个电机：X/Y 为 42 步进电机，Z 为 MG90S 舵机，分类转盘为 DS3120 舵机。
@@ -25,7 +25,7 @@
 - **Orange Pi 5 Plus 已由用户实物确认启动图形桌面，并通过 SSH 登录。** 11月10日进一步从 SSH 实测 Orange Pi 1.2.2 Jammy / Ubuntu 22.04.5 ARM64、Python 3.10.12；系统时间已同步，PyPI HTTPS 返回 200，`apt update` 与 `python3-pip`、`python3-venv` 安装完成。项目 NumPy/OpenCV/pySerial、相机、STM32 及视觉程序尚未在板端部署。详见[008](2026-11-10-008-orangepi-environment-audit.md)；首次烧录与供电历史见[004](2026-11-07-004-orangepi5plus-ubuntu-flash-guide.md)。
 - Windows 与板卡网线直连 `192.168.50.1/24` ↔ `192.168.50.2`；SSH 和外网连通曾验证。旧记录中的“板端日期仍停在 2026-08-31、HTTPS 证书未生效”已由 11月10日实测结果替代。网络历史见[005](2026-11-07-005-orangepi-no-keyboard-network.md)、最新状态见[008](2026-11-10-008-orangepi-environment-audit.md)。
 - 已整理 [Orange Pi 5 Plus 初始化与规范使用手册](../docs/orangepi-5-plus-initialization-guide.md)，包含系统/供电、网络与校时、中文、SSH、Python、相机、串口、训练/转换/板端 RKNN 环境、服务、备份及分阶段验收。**本轮只编写和校验文档，没有执行板端初始化，也未合并分支。** 优先按实际系统身份、校时、HTTPS/apt、中文、重启验证的顺序推进。
-- 截至本次同步，远端 `main` 已包含 Orange Pi 首次上电与 STM32 运动控制分支的合并；`codex/vision-yolo` 仍单独保留。本次 `codex/midterm-vision-model` 从最新 `main` 的 `a3b1ccc` 建立并推送，未合并其他分支或部署模型。
+- 远端 `main` 已包含 Orange Pi 首次上电与 STM32 运动控制分支的合并；`codex/vision-yolo` 仍单独保留。`codex/midterm-vision-model` 从 `main` 的 `a3b1ccc` 建立，首轮数据集已推送至该分支的 `22691a8`；未合并其他分支或部署模型。
 - 单电机旧版短时程序已让实物沿同一方向小幅转动；并非原地来回摆。
 - **最新版已改成持续旋转并烧录校验成功，持续运行的实物效果尚待用户反馈。**
 - 最新固件：PA0=STEP、PA1=DIR、PA4=EN；按 RESET，约 1 秒后起转，从 50Hz 加速到 200Hz 后持续同方向旋转。下载结束时 CPU 暂停、EN 为高；RESET 会启动，不是停止键；停止断开电机电池。
