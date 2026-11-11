@@ -4,9 +4,10 @@ STM32F407VET6 运动控制工程，服务于智能分拣设备。当前控制模
 
 - X、Y：A4988 STEP/DIR 步进轴，支持回零、限位、加减速、脉冲坐标和毫米坐标。
 - Z：MG90S 舵机，使用 PWM 脉宽控制升降，支持上升、下降、停止和急停锁存。
+- 两台 DS3120MG：分别使用 TIM3_CH2 和 TIM3_CH3，与 MG90S 共用 50 Hz 时基，脉宽独立。
 - 串口：USART2，115200-8-N-1，PD5=TX、PD6=RX。
 
-当前工程支持三轴独立控制和并发执行。Z 轴没有位置反馈；三轴直线插补、自动分拣轨迹和整机任务协议仍需在实物联调后加入。
+当前工程支持 X/Y 独立控制以及三路独立舵机 PWM。舵机没有位置反馈；三轴直线插补、自动分拣轨迹和整机任务协议仍需在实物联调后加入。
 
 ## 目录
 
@@ -15,11 +16,11 @@ Core/
 ├─ Inc/                    头文件、引脚和运动参数
 │  ├─ motion_config.h      X/Y 引脚、限位、速度和毫米换算参数
 │  ├─ motion_control.h     X/Y 运动接口
-│  ├─ stm32_actuators.h    Z 舵机接口
+│  ├─ stm32_actuators.h    三路舵机接口
 │  └─ z_axis_config.h      Z 上升/下降脉宽
 └─ Src/
    ├─ motion_control.c     X/Y 脉冲、加减速、回零、急停
-   └─ stm32_actuators.c    Z PWM 平滑移动和停止
+   └─ stm32_actuators.c    三路独立 PWM、平滑移动和停止
 platform/
 ├─ main.c                  HAL 初始化、串口命令和主循环
 ├─ stm32f4xx_hal_conf.h    HAL 配置
@@ -39,20 +40,13 @@ build/                         GNU 构建临时产物
 
 ## Keil 编译
 
-推荐双击：
+直接打开：
 
 ```text
-D:\Users\linjiangwen\Documents\ChatGPT\工创赛\MDK-ARM\open-keil.cmd
+MDK-ARM\VisionClaw_Motion.uvprojx
 ```
 
-打开后选择 `VisionClaw_Motion`，按 **F7**。也可以在 PowerShell 执行：
-
-```powershell
-Set-Location 'D:\Users\linjiangwen\Documents\ChatGPT\工创赛\MDK-ARM'
-.\build-keil.ps1
-```
-
-工具链、Pack、许可证缓存和临时目录均配置在 D 盘。工程依赖本机已有的 HAL/CMSIS 路径：`D:\EmbeddedDev\STM32_Workspace\Task1_CubeMX_Fixed`。Keil 编译验证结果为 0 错误、0 警告。
+选择 `VisionClaw_Motion` 后按 **F7**。HAL/CMSIS 已放在工程的 `Drivers/` 目录，工程不再依赖旧电脑的 `D:\EmbeddedDev` 路径。
 
 输出文件：
 
@@ -67,13 +61,41 @@ MDK-ARM\Objects\VisionClaw_Motion.axf
 |---|---|---|
 | X STEP / DIR / EN | PA0 / PA1 / PA4 | EN 低有效 |
 | Y STEP / DIR / EN | PA2 / PA3 / PA5 | EN 低有效 |
-| Z 舵机信号 | PA6 / TIM3_CH1 | 50Hz PWM |
+| MG90S 信号 | PA6 / TIM3_CH1 | 50Hz PWM |
+| DS3120MG #1 信号 | PC7 / TIM3_CH2 | 50Hz PWM |
+| DS3120MG #2 信号 | PC8 / TIM3_CH3 | 50Hz PWM |
 | X 负限位 / 正限位 | PB0 / PB1 | 低有效，上拉 |
-| Y 负限位 / 正限位 | PB2 / PB3 | 低有效，上拉 |
+| Y 负限位 / 正限位 | PB6 / PB3 | 低有效，上拉 |
 | 急停 | PB4 | 低有效，上拉 |
 | 串口 TX / RX | PD5 / PD6 | USART2，115200 8N1 |
 
-Z 舵机使用独立合适电源，控制地与 STM32 共地。接入机构前先断开负载校准脉宽，不能用 STM32 的 3.3V 给舵机电机供电。
+三路舵机使用独立合适电源，控制地与 STM32 共地。接入机构前先断开负载校准脉宽，不能用 STM32 的 3.3V 给舵机电机供电。三路 PWM 上电均以 1500us 启动。
+
+## 舵机 C 接口
+
+`stm32_actuators.h` 提供三个独立 ID：
+
+```c
+SERVO_MG90S
+SERVO_DS3120_1
+SERVO_DS3120_2
+```
+
+立即设置单路脉宽：
+
+```c
+Servo_SetPulseUs(SERVO_MG90S, 1500);
+Servo_SetPulseUs(SERVO_DS3120_1, 1500);
+Servo_SetPulseUs(SERVO_DS3120_2, 1500);
+```
+
+指定时间平滑移动到目标脉宽：
+
+```c
+Servo_MoveTo(SERVO_DS3120_1, 1800, 500);
+```
+
+MG90S 当前允许 500~2500us；两台 DS3120MG 仍允许 1000~2000us，最终范围需按实物校准。
 
 ## 串口命令
 
@@ -113,11 +135,11 @@ SERVO Z 1600 1000
 STOP Z
 ```
 
-`Z UP` 和 `Z DOWN` 的脉宽在 `Core/Inc/z_axis_config.h` 配置；`SERVO Z` 的范围默认 1000~2000us。`STATUS` 返回 X/Y 步数、毫米位置、限位和 Z 脉宽状态。`ESTOP` 急停，`CLEAR` 在物理急停释放后清除锁存。
+`Z UP` 和 `Z DOWN` 的脉宽在 `Core/Inc/z_axis_config.h` 配置，当前按实机方向 `Z UP=2500us`、`Z DOWN=500us`；MG90S 允许 500~2500us，两台 DS3120MG 仍允许 1000~2000us。平滑移动期间可继续发送舵机命令，每个舵机最多排队 16 条，当前动作完成后按顺序执行。`STATUS` 返回 X/Y 步数、毫米位置、限位和 Z 脉宽状态。`ESTOP` 急停，`CLEAR` 在物理急停释放后清除锁存。
 
 ## 当前边界
 
-源码已经完成 Keil 编译和链接，尚未完成烧录、示波器时序测量、机械方向校准、限位消抖和 Z 舵机实物到位验证。Z 的 `busy=0` 只表示 PWM 输出过程结束，不代表机构已到位。开始台架测试时，使用低速、短距离、断开机构负载的顺序逐轴验证。
+源码已经完成 Keil 编译和链接。用户已实测 X/Y 电机运动、Y 轴回零和 MG90S 串口脉宽控制；两台 DS3120MG、示波器时序、机械端点、限位消抖和完整自动分拣流程仍需验证。Z 的 `busy=0` 只表示 PWM 输出过程结束，不代表机构已到位。开始台架测试时，使用低速、短距离、断开机构负载的顺序逐轴验证。
 
 ## 审查修复
 

@@ -22,3 +22,20 @@ Thumbs.db
 .DS_Store
 *.tmp
 ~$*
+
+# Keil build products and per-user debug configuration
+firmware/stm32-motion-framework/MDK-ARM/Objects/
+firmware/stm32-motion-framework/MDK-ARM/Listings/
+firmware/stm32-motion-framework/MDK-ARM/DebugConfig/
+firmware/stm32-motion-framework/MDK-ARM/keil-build.log
+*.uvguix.*
+*.uvprojx.bak
+*.uvoptx.bak
+*.axf
+*.o
+*.d
+*.lst
+*.map
+
+# Local collaboration scratch files
+.codex-tmp/

@@ -13,7 +13,7 @@ UART_HandleTypeDef huart2;
 void SysTick_Handler(void){HAL_IncTick();}
 void TIM6_DAC_IRQHandler(void){HAL_TIM_IRQHandler(&htim6);}
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *h){if(h->Instance==TIM6){Motion_TickISR();motion_axis_t a;Motion_Snapshot(MOTION_AXIS_X,&a);if(a.state==AXIS_ESTOP){Servo_EStop();HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4|GPIO_PIN_5,GPIO_PIN_SET);}}}
-static void fatal(void){__disable_irq();while(1){}}
+static void fatal(void){__disable_irq();if(htim3.Instance==TIM3){(void)HAL_TIM_PWM_Stop(&htim3,TIM_CHANNEL_1);(void)HAL_TIM_PWM_Stop(&htim3,TIM_CHANNEL_2);(void)HAL_TIM_PWM_Stop(&htim3,TIM_CHANNEL_3);__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,0);__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_2,0);__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_3,0);}while(1){}}
 static void reply(const char *s){HAL_UART_Transmit(&huart2,(uint8_t*)s,strlen(s),50);}
 static void pins(GPIO_TypeDef *p,uint32_t mask,uint32_t mode,uint32_t pull,uint32_t af){GPIO_InitTypeDef g={0};g.Pin=mask;g.Mode=mode;g.Pull=pull;g.Speed=GPIO_SPEED_FREQ_HIGH;g.Alternate=af;HAL_GPIO_Init(p,&g);}
 static void init(void){
@@ -24,22 +24,25 @@ static void init(void){
  if(HAL_RCC_OscConfig(&osc)!=HAL_OK)fatal();
  RCC_ClkInitTypeDef clk={0};clk.ClockType=RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;clk.SYSCLKSource=RCC_SYSCLKSOURCE_PLLCLK;clk.AHBCLKDivider=RCC_SYSCLK_DIV1;clk.APB1CLKDivider=RCC_HCLK_DIV2;clk.APB2CLKDivider=RCC_HCLK_DIV1;
  if(HAL_RCC_ClockConfig(&clk,FLASH_LATENCY_2)!=HAL_OK)fatal();
- __HAL_RCC_GPIOA_CLK_ENABLE();__HAL_RCC_GPIOB_CLK_ENABLE();__HAL_RCC_GPIOD_CLK_ENABLE();__HAL_RCC_TIM6_CLK_ENABLE();__HAL_RCC_TIM3_CLK_ENABLE();__HAL_RCC_USART2_CLK_ENABLE();
+ __HAL_RCC_GPIOA_CLK_ENABLE();__HAL_RCC_GPIOB_CLK_ENABLE();__HAL_RCC_GPIOC_CLK_ENABLE();__HAL_RCC_GPIOD_CLK_ENABLE();__HAL_RCC_TIM6_CLK_ENABLE();__HAL_RCC_TIM3_CLK_ENABLE();__HAL_RCC_USART2_CLK_ENABLE();
  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3,GPIO_PIN_RESET);
  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4|GPIO_PIN_5,GPIO_PIN_SET);
  pins(GPIOA,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5,GPIO_MODE_OUTPUT_PP,GPIO_NOPULL,0);
- pins(GPIOB,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4,GPIO_MODE_INPUT,GPIO_PULLUP,0);
+ pins(GPIOB,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_6,GPIO_MODE_INPUT,GPIO_PULLUP,0);
  pins(GPIOD,GPIO_PIN_5|GPIO_PIN_6,GPIO_MODE_AF_PP,GPIO_PULLUP,GPIO_AF7_USART2);
  huart2.Instance=USART2;huart2.Init=(UART_InitTypeDef){.BaudRate=115200,.WordLength=UART_WORDLENGTH_8B,.StopBits=UART_STOPBITS_1,.Parity=UART_PARITY_NONE,.Mode=UART_MODE_TX_RX,.HwFlowCtl=UART_HWCONTROL_NONE,.OverSampling=UART_OVERSAMPLING_16};
  if(HAL_UART_Init(&huart2)!=HAL_OK)fatal();
  htim6.Instance=TIM6;htim6.Init=(TIM_Base_InitTypeDef){.Prescaler=83,.CounterMode=TIM_COUNTERMODE_UP,.Period=19,.ClockDivision=TIM_CLOCKDIVISION_DIV1};
  if(HAL_TIM_Base_Init(&htim6)!=HAL_OK)fatal();
  pins(GPIOA,GPIO_PIN_6,GPIO_MODE_AF_PP,GPIO_NOPULL,GPIO_AF2_TIM3);
+ pins(GPIOC,GPIO_PIN_7|GPIO_PIN_8,GPIO_MODE_AF_PP,GPIO_NOPULL,GPIO_AF2_TIM3);
  htim3.Instance=TIM3;htim3.Init=(TIM_Base_InitTypeDef){.Prescaler=83,.CounterMode=TIM_COUNTERMODE_UP,.Period=19999,.ClockDivision=TIM_CLOCKDIVISION_DIV1};
  if(HAL_TIM_PWM_Init(&htim3)!=HAL_OK)fatal();
  TIM_OC_InitTypeDef pwm={0};pwm.OCMode=TIM_OCMODE_PWM1;pwm.Pulse=1500;pwm.OCPolarity=TIM_OCPOLARITY_HIGH;pwm.OCFastMode=TIM_OCFAST_DISABLE;
  if(HAL_TIM_PWM_ConfigChannel(&htim3,&pwm,TIM_CHANNEL_1)!=HAL_OK)fatal();
- Servo_Init();
+ if(HAL_TIM_PWM_ConfigChannel(&htim3,&pwm,TIM_CHANNEL_2)!=HAL_OK)fatal();
+ if(HAL_TIM_PWM_ConfigChannel(&htim3,&pwm,TIM_CHANNEL_3)!=HAL_OK)fatal();
+ if(!Servo_Init())fatal();
  HAL_NVIC_SetPriority(TIM6_DAC_IRQn,1,0);HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);Motion_Init();Motion_Start();
 }
 static void command(char *s){

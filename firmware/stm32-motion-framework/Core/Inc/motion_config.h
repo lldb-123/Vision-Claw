@@ -33,7 +33,7 @@ extern UART_HandleTypeDef huart2;
 #define X_MAX_GPIO_Port  GPIOB
 #define X_MAX_Pin        GPIO_PIN_1
 #define Y_MIN_GPIO_Port  GPIOB
-#define Y_MIN_Pin        GPIO_PIN_2
+#define Y_MIN_Pin        GPIO_PIN_6
 #define Y_MAX_GPIO_Port  GPIOB
 #define Y_MAX_Pin        GPIO_PIN_3
 #define ESTOP_GPIO_Port  GPIOB
