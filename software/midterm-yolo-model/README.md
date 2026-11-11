@@ -1,6 +1,6 @@
 # 工创赛中期检查：YOLOv8n 六形状训练工程
 
-状态：**代码已准备，尚未安装本工程的训练环境、正式拍摄或训练。** 本目录是同步到仓库的训练工程；用户原电脑 `F:\gcs_medium_check_YOLO_model` 保留开发副本。原电脑桌面 `tttest_yolo/yolo_first` 目前只有 1 张练习照片和 5 种可见形状，适合检查导出格式，不能用于六类模型训练；原图、标签和虚拟环境没有纳入仓库。
+状态：**首轮数据集已准备，尚未启动训练。** [仓库数据集](../../datasets/midterm-yolo-v1/README.md)含 236 张图片及同名 YOLO 标签，训练/验证为 196/40，六类 ID 已重排。原电脑训练工程位于 `F:\gcs_medium_check_YOLO_model`；用户要求先同步 GitHub 并检查环境，再决定何时训练。
 
 ## 类别约定
 
@@ -15,13 +15,21 @@
 
 AnyLabeling 导出的 `classes.txt` **可能不按此顺序，且只包含拍到的类别**。`prepare_dataset.py` 根据类名重映射每一行标签 ID；不要把 `tttest_yolo/yolo_first/labels/image.txt` 原样配上上表的 `data.yaml` 训练。颜色在后续传统视觉模块处理，不进入这六个 YOLO 类。
 
+## 固定相机拍正式照片
+
+双击 `start-capture.cmd`。在预览窗口直接输入组别名（例如 `cube_black`），按 **Enter** 确定；之后每按一次 **空格**就保存一张。换组别按 **B**，输入新组别并按 Enter；退出按 **Q**。拍摄前确认预览显示托盘。组别名只用小写字母、数字、下划线和短横线。
+
+新照片保存到本工程 `dataset_photos/<组别>/photo_000001.png`，每组独立编号。保存的是相机原帧，窗口上的提示文字不进入照片；程序不会强制设置曝光或白平衡。`dataset_photos/` 已排除 Git。原 `captures/` 是旧版脚本目录，不再作为新照片输入。
+
+相机默认尝试当前外接托盘相机的 MSMF 索引 1、DirectShow 索引 0。若设备重插后索引变化，可在终端运行 `python .\capture.py --backend msmf --camera-index 1` 等指定后端和索引。正式采集尽量固定机位、光照和拨料件位置。
+
 ## 目前即可检查单图导出
 
-在 PowerShell 中从仓库根目录进入本工程；将示例导出目录换成实际路径：
+在 PowerShell 中进入本工程：
 
 ```powershell
-Set-Location '.\software\midterm-yolo-model'
-python .\prepare_dataset.py --source 'D:\your_export' --audit-only
+Set-Location .\software\midterm-yolo-model
+& 'C:\Users\Lenovo\AppData\Roaming\uv\python\cpython-3.12.13-windows-x86_64-none\python.exe' .\prepare_dataset.py --source 'C:\Users\Lenovo\Desktop\tttest_yolo\yolo_first' --audit-only
 ```
 
 这只读检查图片、标签、坐标和类名，不复制照片，也不启动训练。
@@ -42,18 +50,18 @@ python .\prepare_dataset.py --source 'D:\your_export' --audit-only
 3. 先审计，再生成**新的**训练数据目录（不会覆盖已有目录）：
 
    ```powershell
-   python .\prepare_dataset.py --source 'D:\your_export' --audit-only
-   python .\prepare_dataset.py --source 'D:\your_export' --splits-csv '.\splits.csv' --out '.\dataset_v1'
+   & 'C:\Users\Lenovo\AppData\Roaming\uv\python\cpython-3.12.13-windows-x86_64-none\python.exe' .\prepare_dataset.py --source 'D:\your_export' --audit-only
+   & 'C:\Users\Lenovo\AppData\Roaming\uv\python\cpython-3.12.13-windows-x86_64-none\python.exe' .\prepare_dataset.py --source 'D:\your_export' --splits-csv '.\splits.csv' --out '.\dataset_v1'
    ```
 
    把示例 `D:\your_export` 改成实际 AnyLabeling 导出目录。结果含 `images/train|val|test`、`labels/train|val|test`、`data.yaml`、`dataset_summary.json`；无 test 时不生成 test。检查逐类框数及几张叠框图后再训练。
 
 ## RTX 5060 训练环境
 
-用户原电脑已读到 RTX 5060 Laptop GPU（约 8 GiB，驱动 582.05）。系统默认 Python 3.14 的 PyTorch 是 `+cpu`，CUDA 不可用，不能用它训练。原电脑 `py -0p` 能列出 uv 管理的 Python 3.12.13，但 `py -3.12` **不能**选中它；在该电脑上使用已核实的解释器完整路径创建独立环境：
+本机已读到 RTX 5060 Laptop GPU（约 8 GiB，驱动 582.05）。系统默认 Python 3.14 的 PyTorch 是 `+cpu`，CUDA 不可用，不能用它训练。本机 `py -0p` 能列出 uv 管理的 Python 3.12.13，但 `py -3.12` **不能**选中它；本工程使用已核实的解释器完整路径创建独立环境：
 
 ```powershell
-# 以下命令在 software/midterm-yolo-model 目录执行
+Set-Location .\software\midterm-yolo-model
 & 'C:\Users\Lenovo\AppData\Roaming\uv\python\cpython-3.12.13-windows-x86_64-none\python.exe' -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 ```
