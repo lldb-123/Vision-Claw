@@ -1,0 +1,27 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "tet",
+      "text": "",
+      "points": [
+        [
+          438.82,
+          437.56
+        ],
+        [
+          547.6,
+          542.87
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "tet_white__photo_000004.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

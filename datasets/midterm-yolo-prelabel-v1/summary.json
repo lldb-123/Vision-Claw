@@ -1,0 +1,20 @@
+{
+  "created": "2026-11-11T22:23:55+08:00",
+  "total_images": 462,
+  "inferred_images": 442,
+  "known_empty_skipped": 20,
+  "images_with_boxes": 439,
+  "no_boxes_needing_review": 3,
+  "boxes_by_class": {
+    "cone": 68,
+    "tet": 64,
+    "sph": 64,
+    "cube": 171,
+    "cyl": 187,
+    "tpri": 74
+  },
+  "confidence_threshold": 0.25,
+  "imgsz": 640,
+  "model_sha256": "4456f42b7b25cac953143ed6bb33bf1490d8c14c8f6a50f7586d8116d444a3c3",
+  "reviewed": false
+}

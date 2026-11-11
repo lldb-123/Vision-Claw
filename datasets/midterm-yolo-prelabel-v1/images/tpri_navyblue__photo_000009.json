@@ -1,0 +1,27 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "cyl",
+      "text": "",
+      "points": [
+        [
+          336.43,
+          545.4
+        ],
+        [
+          504.52,
+          637.91
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "tpri_navyblue__photo_000009.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

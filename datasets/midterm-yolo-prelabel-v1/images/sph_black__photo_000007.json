@@ -1,0 +1,27 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "sph",
+      "text": "",
+      "points": [
+        [
+          645.61,
+          488.21
+        ],
+        [
+          775.08,
+          625.56
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "sph_black__photo_000007.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

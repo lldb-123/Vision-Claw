@@ -1,6 +1,6 @@
 # 工创赛中期检查：YOLOv8n 六形状训练工程
 
-状态：**首轮数据集已同步，GPU 环境已在原电脑验证，尚未启动训练。** [仓库数据集](../../datasets/midterm-yolo-v1/README.md)含 236 张图片及同名 YOLO 标签，训练/验证为 196/40，六类 ID 已重排。原电脑训练工程位于 `F:\gcs_medium_check_YOLO_model`；虚拟环境和预训练权重只在原电脑，本仓库不包含。
+状态：**用户已在原电脑训练出六形状初级模型；按最新要求，当前分支暂不提交照片。** [仓库首轮数据目录](../../datasets/midterm-yolo-v1/README.md)保留 236 张图片对应的 YOLO 标签与清单，训练/验证为 196/40，六类 ID 已重排。最佳模型副本和其余 462 张照片的待审核候选 JSON 见[第二批数据目录](../../datasets/midterm-yolo-prelabel-v1/README.md)；[自上次提交以来的进展](../../docs/midterm-yolo-progress-since-a24ea14-2026-11-11.md)记录了训练结果和局限。原电脑训练工程位于 `F:\gcs_medium_check_YOLO_model`，照片和虚拟环境均保留在原电脑。
 
 ## 类别约定
 

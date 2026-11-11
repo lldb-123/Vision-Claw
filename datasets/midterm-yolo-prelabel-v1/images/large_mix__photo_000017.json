@@ -1,0 +1,44 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "sph",
+      "text": "",
+      "points": [
+        [
+          298.9,
+          508.45
+        ],
+        [
+          445.0,
+          640.57
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "sph",
+      "text": "",
+      "points": [
+        [
+          755.69,
+          508.78
+        ],
+        [
+          888.29,
+          639.75
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "large_mix__photo_000017.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

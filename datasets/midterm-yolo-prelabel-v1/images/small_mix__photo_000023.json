@@ -1,0 +1,95 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "cube",
+      "text": "",
+      "points": [
+        [
+          591.44,
+          240.08
+        ],
+        [
+          691.44,
+          367.35
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tet",
+      "text": "",
+      "points": [
+        [
+          559.89,
+          415.7
+        ],
+        [
+          658.52,
+          502.93
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "sph",
+      "text": "",
+      "points": [
+        [
+          639.88,
+          492.13
+        ],
+        [
+          757.37,
+          606.28
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tet",
+      "text": "",
+      "points": [
+        [
+          805.23,
+          290.29
+        ],
+        [
+          899.78,
+          366.2
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cone",
+      "text": "",
+      "points": [
+        [
+          818.4,
+          419.04
+        ],
+        [
+          929.64,
+          534.03
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "small_mix__photo_000023.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

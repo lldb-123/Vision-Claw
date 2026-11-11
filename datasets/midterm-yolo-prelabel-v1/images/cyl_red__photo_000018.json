@@ -1,0 +1,44 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "cyl",
+      "text": "",
+      "points": [
+        [
+          769.38,
+          233.7
+        ],
+        [
+          909.54,
+          358.77
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "sph",
+      "text": "",
+      "points": [
+        [
+          769.54,
+          234.7
+        ],
+        [
+          913.14,
+          358.76
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "cyl_red__photo_000018.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

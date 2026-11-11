@@ -1,0 +1,27 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "cube",
+      "text": "",
+      "points": [
+        [
+          768.71,
+          302.61
+        ],
+        [
+          928.3,
+          478.6
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "cube_yellow__photo_000015.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

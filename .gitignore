@@ -13,6 +13,8 @@ tmp/
 configs/calibration.json
 original_sector0.bin
 /experiments/single-motor/tools/
+/datasets/midterm-yolo-v1/images/
+/datasets/midterm-yolo-prelabel-v1/images/*.png
 
 # Credentials and operating-system files
 .env

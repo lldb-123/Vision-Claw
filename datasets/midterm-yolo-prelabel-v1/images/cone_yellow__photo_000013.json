@@ -1,0 +1,44 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "cone",
+      "text": "",
+      "points": [
+        [
+          718.93,
+          273.3
+        ],
+        [
+          818.15,
+          372.34
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tet",
+      "text": "",
+      "points": [
+        [
+          719.12,
+          272.01
+        ],
+        [
+          817.79,
+          372.77
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "cone_yellow__photo_000013.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

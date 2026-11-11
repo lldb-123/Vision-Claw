@@ -4,9 +4,9 @@
 - 对话编号：010。
 - 关联仓库/分支：Vision-Claw / 当前本地分支。
 - 相关历史记录：[009：中期检查颜色与形状方案](2026-11-10-009-yolo-color-shape-annotation.md)。
-- 本次状态：已写拍摄方案；尚未用正式相机拍摄、标注、训练或验证。
+- 本次状态：正式照片 698 张，首轮 236 张已标注并训练；其余 462 张已有未经人工复核的模型候选框，详见文末续记。
 
-## 接续摘要
+## 初始阶段接续摘要（以下为当时状态，最新进展见文末）
 
 - 用户为中期检查准备 YOLOv8n 初级模型，照片预算不超过 1000，期望约 800；检测六形状（正方体、球体、圆柱体、四面体、圆锥体、三棱柱），六色为黑、白、红、黄、深蓝、浅蓝，颜色由传统视觉判断。
 - 已新增[800 张上限的分批数据集方案](../docs/midterm-yolov8n-dataset-800-plan-2026-11-11.md)：先拍 96 张打通链路，约 400 张检查效果，最多 690 张开发＋110 张独立盲测；每张为独立重新摆放的正式相机原图。800 不是必须拍满的门槛。
@@ -137,3 +137,61 @@
 - `codex/midterm-vision-model` 上提交 `22691a8dc11a4f6769debe59aaf4bbb8ea3435d4` 已推送，`git ls-remote` 返回相同 SHA。提交含 236 张图片、236 个 YOLO 标签、相对路径 `data.yaml`、划分/来源清单、数据摘要、捕图脚本及视觉文档；未暂存或提交同工作树里其他人的 STM32 固件改动。
 - 原电脑 `F:\gcs_medium_check_YOLO_model\.venv` 使用 Python 3.12.13，安装官方 CUDA 13.0 版 `torch 2.14.1+cu130`、`torchvision 0.29.1+cu130`、`ultralytics 8.4.210`、`PyYAML 6.0.3`。RTX 5060 Laptop GPU（驱动 582.05）上 `torch.cuda.is_available()` 为 True，真实 128×128 CUDA 矩阵运算成功。Ultralytics `check_det_dataset(..., autodownload=False)` 正确解析仓库版 `data.yaml` 的 train/val 路径和六类名称；原电脑已下载并加载 `yolov8n.pt` 预训练权重。未调用 `train.py` 或 `model.train`，没有模型训练、训练指标或 `best.pt`。
 - 当前首轮多件训练照片只有 `small_mix` 前 10 张，共 40 个框且只涉及 cube 与 cyl；其余四形状在本版仅有单件图。此限制已写入数据集 README，正式演示若包括六形状同时出现，需补标其余混合照片。独立最终测试集尚未建立。虚拟环境和权重未同步仓库。
+
+## 2026-11-11 续：交给用户手动启动首轮训练
+
+- 用户询问是否可以训练，并明确由自己手动启动。此前已验证 236 张训练数据集、RTX 5060 CUDA 真实运算、Ultralytics 配置解析和 `yolov8n.pt` 加载；建议在原电脑 `F:\gcs_medium_check_YOLO_model` 使用 `.venv\Scripts\python.exe .\train.py --data .\dataset_v1\data.yaml --epochs 80 --imgsz 640 --batch 8`。本次只是提供命令，AI 未执行训练；如显存不足可改 batch 4，权重预期位于 `runs/train_时间/weights/best.pt`。当前尚无独立测试集，多件图仅覆盖 cube/cyl。
+
+## 2026-11-11 续：用户手动训练时 CPU 使用率咨询
+
+- 用户自行启动原电脑 `F:\gcs_medium_check_YOLO_model\.venv\Scripts\python.exe .\train.py --data .\dataset_v1\data.yaml --epochs 80 --imgsz 640 --batch 8`，截图显示联想管家 CPU 100%、86°C。只读核对训练进程和 `runs/train_20261111_212410`：`args.yaml` 为 `device: "0"`、`workers: 0`；`results.csv` 已写到 epoch 43/80，`best.pt`/`last.pt` 已生成，说明训练在推进但尚未完成。
+- 当时 Python 进程约用 15 个逻辑处理器核的计算量；Windows 处理器瞬时总负载读数 33%，联想管家 100% 为另一时间点/统计口径。GPU 多次瞬时抽样为 0–21%、占显存约 1.3 GiB；有 CUDA 计算进程，不能把低瞬时 GPU 利用率误判为 CPU 训练。CPU 负担主要来自图像读取、缩放及数据增强等训练数据处理；未修改训练进程或参数，未宣称训练完成。
+
+## 2026-11-11 续：首轮 YOLOv8n 训练结果与未标注照片抽查
+
+- 用户手动训练已完成：原电脑 `F:\gcs_medium_check_YOLO_model\runs\train_20261111_212410\weights\best.pt` 存在，约 6.5 MB。80 轮计划在第 75 轮因 patience=20 提前结束，最佳轮次 55；这是正常停止机制，部署/推理用 `best.pt` 而非 `last.pt`。训练耗时约 0.158 小时（9.5 分钟），RTX 5060 CUDA:0。
+- 最佳权重对本版 40 张验证图/44 个目标重新验证：总体 P=0.961、R=0.970、mAP50=0.985、mAP50-95=0.946；`tpri` 为较弱类，R=0.817、mAP50-95=0.861。训练/验证来自同相机、同实物和同一采集阶段，每类验证仅 6–10 个框，未建立独立最终测试集，这些数值不能等同陌生多件场景准确率。
+- 只读核对六张未进入 236 张首轮训练/验证集的原电脑候选照片，并用 `best.pt`、conf=0.25 做定性推理，叠框图在 `F:\gcs_medium_check_YOLO_model\runs\predict_20261111_213744`，并非有真值的测试指标。白球、深蓝四面体、白三棱柱等单件预测正确；白圆锥同一位置同时有 `cone 0.72` 与 `sph 0.458` 重叠框。`small_mix/photo_000020.png` 中两个圆锥被判成圆柱，黄色多棱物被判成 cube；`large_mix/photo_000010.png` 也有圆锥/柱混淆和漏检。首轮多件训练图只含 cube/cyl，此局限与实测一致。
+- 判断：中期初级单件模型已经可用作演示候选，但多形状混合场景尚未验证达标。下一步优先补标现有混合原图中 cone/tpri/tet/sph 的多件摆放并保留独立测试，不需要只增加训练轮数。用户尚未授权本轮再次训练或同步新权重到 GitHub。
+
+## 2026-11-11 续：独立实时演示窗口
+
+- 用户希望向老师展示实时摄像头检测框，明确要求简单、自己查看，且不能掺杂或破坏现有训练工程。在原电脑独立目录 `F:\VisionClaw_LiveDemo` 新建 `live_demo.py`、`start-demo.cmd`、README、单独 `.venv` 和 `best.pt` 副本；原训练工程只被读取以复制模型，没有修改其中的文件。模型副本 SHA-256 与原始最佳权重一致。
+- 双击入口显示实时相机画面、六形状中文框与各类别数量，Q/Esc 退出；不保存画面、不识别颜色。默认尝试 MSMF 索引 1 / DirectShow 索引 0，置信度 0.4，使用类别无关 NMS 减少同一物体重复类别框；模型在多形状混放的已知误分类仍需现场核对。
+- 独立环境从本机缓存安装 Python 3.12、torch 2.14.1+cu130、Ultralytics 8.4.210。运行 `live_demo.py --check` 实测 MSMF 索引 1 可读 1280×720 一帧、RTX 5060 可推理并可生成画面；该帧检测数为 0。按用户要求没有替用户打开互动展示窗口，现场放置物体的效果尚待用户自行查看。本轮演示目录不在仓库，未 commit/push。
+
+## 2026-11-11 续：三棱柱被实时演示误识别为正方体
+
+- 用户反馈实时界面中三棱柱基本被识别为正方体，询问模型、训练和标注原因。只读核对原电脑首轮数据：`tpri` 训练集 30 个单件框、验证集 6 个单件框；10 张多物体图没有 `tpri`，而 `cube` 有 46 个训练框。36 张 `tpri` 的 AnyLabeling JSON 标签和训练 YOLO 标签 ID=3 及归一化坐标一致；抽看的验证图标注可见对应物体，但未逐张对实物核验语义，不能排除个别标签问题。数据 YAML/演示程序映射 `cube`、`tpri` 正确，独立演示模型副本哈希与训练 `best.pt` 一致。
+- 原验证集仅 6 个三棱柱，训练输出混淆矩阵显示 5 个判为 tpri、1 个判为 cyl；不足以代表实时混放或未覆盖姿态。对此前未入首轮的 `small_mix/photo_000020.png` 离线复现：黄色棱柱所在框为 `cube 0.865`，`agnostic_nms` 开关两种情况下均同样输出；这是该例模型本身的误分类，不能据此排除其他实时画面的其他原因。未读取或改动用户正在运行的摄像头界面。
+- 初步判断应优先补充三棱柱的实际摆放角度、多物体与正方体对照样本，而非仅增加同一批数据的训练轮数；原电脑 `tpri_*` 单件组共 120 张、首轮只选 36 张，剩余可先选图标注。应保留独立新摆放照片测试；此轮仅诊断，没有改训练工程、标注或重新训练。
+
+## 2026-11-11 续：剩余照片预标注准备
+
+- 用户希望整理项目文件，把剩余照片规整到一起，为后续模型预标注做准备。保留原电脑训练工程与照片，在独立目录 `F:\VisionClaw_AnnotationPrep` 创建 `images/`（462 张副本）、`manifest.csv`（原相对路径、组别、类型和单件形状/颜色提示）、`classes.txt`、README 和 `model/best.pt` 模型副本。文件名以组别加原文件名避免重名，`sph_blck` 副本名规范为 `sph_black`，清单仍保存实际原路径。
+- 以 `annotation_batch_v1/selection.csv` 排除首轮 236 张：698 张原图中剩余 462 张，包含单物体 409、多物体 33、空盘 20；单物体中 tpri 84、cube 84、cyl 115、cone 62、sph 24、tet 40。校验清单与图片均为 462、无缺失，模型副本哈希与原最佳权重相同。仅复制整理，没有移动或删除原图，没有自动生成标注、划分集合、重新训练或推送 GitHub。
+
+## 2026-11-11 续：纠正预标注资料的位置并整理工程入口
+
+- 用户纠正：希望照片和资料放在原电脑工程 `F:\gcs_medium_check_YOLO_model` 内，并整理该工程，而非新增工程外目录。原先 `F:\VisionClaw_AnnotationPrep` 在尝试移动前已不存在，未推断原因；据未改动的 `dataset_photos` 和首轮 `selection.csv` 在工程内重新生成 `annotation_remaining_v1/`：462 张照片副本（409 单件、33 多件、20 空盘）、`manifest.csv`、模型副本、类名文件与说明。校验 462 图片与清单无缺失，模型副本哈希与首轮 best.pt 相同；未生成预标注。
+- 新增工程根目录 `项目文件说明.md`，按原图、首轮标注、导出、训练集、剩余图片、代码、环境和模型列明用途；修正本机 `README.md` 的过时训练状态并增加入口，`.gitignore` 排除新待标注目录。原有训练数据、模型、脚本及引用它们的路径保留原位置，未移动或删除。此前外部预标注目录记录已由本节位置替代，未提交/推送 GitHub。
+
+## 2026-11-11 续：模型预标注及 AnyLabeling 复核
+
+- 用户询问如何用模型标注、是否继续用 AnyLabeling。已核对 AnyLabeling 官方自定义 YOLOv8 文档：需要 ONNX 和模型 YAML；在原电脑 `F:\gcs_medium_check_YOLO_model\annotation_remaining_v1\model` 用首轮模型副本导出 `best.onnx`（opset 17，输入 1×3×640×640，输出 1×10×8400），建立 `anylabeling.yaml`，未改训练代码或原权重。导出依赖置于该待标注目录独立 `.export-deps`。
+- 检查官方 AnyLabeling YOLOv8 预处理发现直接缩放图像至 640×640；用其方式模拟 1280×720 的 `sph_blue__photo_000002.png` 时输出 `cyl 0.94`，Ultralytics 原比例推理输出 `sph 0.96`。这是源码模拟和单张对比，未实际操作用户 AnyLabeling GUI；为避免此具体失真，使用 PyTorch 模型、原比例推理生成 AnyLabeling 兼容矩形 JSON，再由用户在原软件复核。
+- 新增 `annotation_remaining_v1/prelabel.py` 并运行：结果独立放 `prelabel_v1/images/`，复制全部 462 张；442 张非空盘运行推理，439 张得到候选框 JSON、3 张无候选框；20 张空盘跳过推理，无 JSON。全部候选框未复核，`review_queue.csv` 状态均为 unreviewed，`priority_review.csv` 列出 35 张单件组别提示与预测类别/框数不一致的照片（提示只是拍摄组名，并非确认真值）。三张未检出的非空盘为 `cube_white__photo_000026.png`、`tpri_blue__photo_000011.png`、`tpri_white__photo_000021.png`。
+- 核对 462 副本及 439 个 JSON 可解析、imagePath 对应、形状类型为 rectangle；尚未在 AnyLabeling 中实际打开，也未人工复核这些候选框、导出训练标签或重新训练。原始 `annotation_remaining_v1/images/` 及首轮训练数据没有改动。未提交/推送 GitHub。
+
+## 2026-11-11 续：自上次提交以来的视觉成果归档
+
+- 用户授权把当前成果做详细总结，并在现有 `codex/midterm-vision-model` 分支创建一个新提交同步到 GitHub。上次远端提交为 `a24ea14`。完整叙述另见[进展记录](../docs/midterm-yolo-progress-since-a24ea14-2026-11-11.md)。
+- 本轮新增仓库快照：`software/midterm-live-demo/` 为独立实时演示代码；`datasets/midterm-yolo-prelabel-v1/` 保留 439 个待审核 AnyLabeling JSON、人工复核清单、生成脚本及首轮最佳权重。原电脑工作文件仍在 `F:\gcs_medium_check_YOLO_model` 和 `F:\VisionClaw_LiveDemo`；仓库快照不代表原电脑目录被移动。
+- 同步范围明确排除工作树中无关的 `firmware/stm32-motion-framework/` 改动，也不纳入虚拟环境、运行日志、临时 ONNX 依赖或尚未复核的 YOLO 真值标签。第二批 462 张的 JSON 只能作为候选框，尚未人工复核、划分或用于新训练。
+- 本次归档时复查远端分支仍为 `a24ea14`，目标是只提交上述视觉相关文件及本篇对话记录/索引。最终提交与远端同步结果以 Git 记录为准。
+
+## 2026-11-11 续：用户改为最后一次统一上传照片
+
+- 用户在约 315 MB 照片包推送期间明确要求立即停止上传，并从 GitHub 当前分支移除图片数据，照片留待最后一次统一提交。已停止本次 push；随即 `git ls-remote` 核对远端仍指向 `a24ea14`，新增 462 张照片未推送成功。
+- 已在本地暂存区取消跟踪这次新增的 462 张 PNG，同时把此前已在远端分支文件中的首轮 236 张 PNG 标为删除；两批照片原电脑及本地工作树文件仍保留，未从磁盘删除。`datasets/midterm-yolo-v1/` 仍有标签、清单和 `data.yaml`，`datasets/midterm-yolo-prelabel-v1/` 仍有 439 个待审核 JSON、清单与权重。Git 历史中的旧提交仍可追溯首轮照片；当前分支最新文件列表将不含照片。
+- 对应 README、进展记录和 `.gitignore` 已改为明确说明“照片最后统一上传”；没有重新训练或人工复核。无关 STM32 改动仍保持在工作树，不纳入本轮提交。
