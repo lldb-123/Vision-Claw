@@ -84,4 +84,4 @@
 
 - 用户明确授权把目前相关内容同步到 GitHub，建议从远端最新 `main` 建中期检查视觉模型分支。已 `git fetch origin main`，基点为 `a3b1ccc24e4f5528588b87f84bb4277774520a17`；原电脑另建工作树 `C:\Users\Lenovo\Documents\ChatGPT\工创赛-midterm-vision`，分支 `codex/midterm-vision-model`。原 `main` 工作树中已有的未提交文件保持原样。
 - 远端 `main` 已有较新的 Orange Pi 002/004/005 记录及 STM32 运动控制合并，未用本地较旧同名文件覆盖。以远端索引为底，补入 006–010 记录、视觉方案和研究文档；008 环境实测保留作为新记录。训练代码从原电脑 `F:\gcs_medium_check_YOLO_model` 复制到仓库 `software/midterm-yolo-model/`，仓库版 README 改为从仓库目录执行。原桌面练习照片、AnyLabeling 导出标签、虚拟环境和权重没有复制入仓库。
-- 此段写入时正在核对链接、代码审计及待提交文件；提交和推送状态以本段后续更新为准。GitHub 分支只承载文档和代码，尚未有正式数据集、CUDA 环境或 `best.pt`。
+- 已核对新增文档的本地链接、Python 语法及当前单图的标签审计；首个提交 `664adc4fc087ff8aeca437e118d9904cbdc9313d` 已推送到 `origin/codex/midterm-vision-model`，`git ls-remote` 返回相同 SHA。远端 `main` 在推送前复查仍为基点 `a3b1ccc24e4f5528588b87f84bb4277774520a17`。本次只同步分支，没有合并 `main` 或创建 PR；正式数据集、CUDA 环境和 `best.pt` 尚未产生。

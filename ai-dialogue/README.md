@@ -24,7 +24,7 @@
 - **Orange Pi 5 Plus 已由用户实物确认启动图形桌面，并通过 SSH 登录。** 11月10日进一步从 SSH 实测 Orange Pi 1.2.2 Jammy / Ubuntu 22.04.5 ARM64、Python 3.10.12；系统时间已同步，PyPI HTTPS 返回 200，`apt update` 与 `python3-pip`、`python3-venv` 安装完成。项目 NumPy/OpenCV/pySerial、相机、STM32 及视觉程序尚未在板端部署。详见[008](2026-11-10-008-orangepi-environment-audit.md)；首次烧录与供电历史见[004](2026-11-07-004-orangepi5plus-ubuntu-flash-guide.md)。
 - Windows 与板卡网线直连 `192.168.50.1/24` ↔ `192.168.50.2`；SSH 和外网连通曾验证。旧记录中的“板端日期仍停在 2026-08-31、HTTPS 证书未生效”已由 11月10日实测结果替代。网络历史见[005](2026-11-07-005-orangepi-no-keyboard-network.md)、最新状态见[008](2026-11-10-008-orangepi-environment-audit.md)。
 - 已整理 [Orange Pi 5 Plus 初始化与规范使用手册](../docs/orangepi-5-plus-initialization-guide.md)，包含系统/供电、网络与校时、中文、SSH、Python、相机、串口、训练/转换/板端 RKNN 环境、服务、备份及分阶段验收。**本轮只编写和校验文档，没有执行板端初始化，也未合并分支。** 优先按实际系统身份、校时、HTTPS/apt、中文、重启验证的顺序推进。
-- 截至本次同步，远端 `main` 已包含 Orange Pi 首次上电与 STM32 运动控制分支的合并；`codex/vision-yolo` 仍单独保留。本次中期检查分支以最新 `main` 为起点，不自动合并其他分支或部署模型。
+- 截至本次同步，远端 `main` 已包含 Orange Pi 首次上电与 STM32 运动控制分支的合并；`codex/vision-yolo` 仍单独保留。本次 `codex/midterm-vision-model` 从最新 `main` 的 `a3b1ccc` 建立并推送，未合并其他分支或部署模型。
 - 单电机旧版短时程序已让实物沿同一方向小幅转动；并非原地来回摆。
 - **最新版已改成持续旋转并烧录校验成功，持续运行的实物效果尚待用户反馈。**
 - 最新固件：PA0=STEP、PA1=DIR、PA4=EN；按 RESET，约 1 秒后起转，从 50Hz 加速到 200Hz 后持续同方向旋转。下载结束时 CPU 暂停、EN 为高；RESET 会启动，不是停止键；停止断开电机电池。
