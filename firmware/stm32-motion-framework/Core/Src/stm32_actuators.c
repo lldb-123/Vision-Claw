@@ -134,6 +134,20 @@ bool Servo_Enable(void)
     return Servo_EnableById(SERVO_MG90S);
 }
 
+bool Servo_CanMove(servo_id_t id, uint16_t pulse_us, uint32_t move_ms)
+{
+    if (!valid_id(id) || !valid_pulse(id, pulse_us) ||
+        move_ms < 20u || move_ms > Z_MAX_DURATION_MS) {
+        return false;
+    }
+
+    uint32_t primask = lock();
+    bool ok = servo_status[id].enabled && !servo_status[id].estop &&
+              (!servo_status[id].busy || move_queue_count[id] < SERVO_QUEUE_DEPTH);
+    unlock(primask);
+    return ok;
+}
+
 bool Servo_MoveTo(servo_id_t id, uint16_t pulse_us, uint32_t move_ms)
 {
     if (!valid_id(id) || !valid_pulse(id, pulse_us) ||

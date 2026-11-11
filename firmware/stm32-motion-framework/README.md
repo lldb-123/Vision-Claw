@@ -99,25 +99,47 @@ MG90S 当前允许 500~2500us；两台 DS3120MG 仍允许 1000~2000us，最终�
 
 ## 串口命令
 
-每条命令以回车或换行结束。先使能并回零：
+串口（USART2，115200 8N1）已采用 **中断 + 512 字节环形缓冲区接收**，支持多行连续发送不丢字节。每条命令以回车或换行结束。
+
+### 1. 使能、置零与回零
+上电时若物理急停（`PB4`）未触发，X/Y/Z 默认全部使能；也可手动控制：
 
 ```text
+ENABLE ALL
 ENABLE X
 ENABLE Y
 ENABLE Z
+DISABLE ALL
+SET_ZERO
+HOME ALL
 HOME X
 HOME Y
 ```
 
-毫米坐标控制：
+- `SET_ZERO`（或 `SET_ZERO X` / `SET_ZERO Y`）：将当前位置设为 `0` 并标记 `homed=1`，便于未接限位开关或联调阶段直接测试绝对坐标命令。
 
+### 2. 三轴同时运动命令
 ```text
-GOTO_MM X 100 5
-GOTO_MM Y 80 5
-MOVE_MM X 10 5
+MOVE_XYZ 20 20 2500 10
+MOVE_XYZ -20 -20 500 10 700
+GOTO_XYZ 100 80 2500 15
+GOTO_XYZ 100 80 500 15 700
 ```
 
-`GOTO_MM` 使用绝对坐标，`MOVE_MM` 使用相对位移，速度单位是 mm/s。脉冲换算参数在 `Core/Inc/motion_config.h`：
+- `MOVE_XYZ <dx_mm> <dy_mm> <z_us> <speed_mm/s> [z_ms]`：**无需先回零**，X/Y 相对移动与 Z 轴脉宽同时启动；X/Y 按位移比例自动分配速度与加速度以同步到达，`z_ms` 省略时默认 `700` ms。
+- `GOTO_XYZ <x_mm> <y_mm> <z_us> <speed_mm/s> [z_ms]`：需已回零（`HOME` 或 `SET_ZERO`），X/Y 绝对坐标与 Z 轴同时运动。
+
+### 3. 单轴毫米与脉冲坐标控制
+```text
+MOVE_MM X 10 5
+MOVE_MM Y -10 5
+GOTO_MM X 100 5
+GOTO_MM Y 80 5
+```
+
+- `MOVE_MM` / `MOVE` 使用相对位移，**无需先回零**即可正反向点动调试；`GOTO_MM` / `GOTO` 使用绝对坐标，需先完成 `HOME` 或 `SET_ZERO`。
+- 由于各轴非阻塞并发执行，连续发送多行 `MOVE_MM X ...`、`MOVE_MM Y ...`、`Z UP` 也会三轴同时运动。
+- 脉冲换算参数在 `Core/Inc/motion_config.h`：
 
 ```c
 #define X_STEPS_PER_MM 80.0f
@@ -126,16 +148,18 @@ MOVE_MM X 10 5
 
 公式为：`脉冲/毫米 = 每转脉冲数 ÷ 丝杆导程`。80.0 只是当前开发默认值，必须按实际电机细分和丝杆导程校准。
 
-Z 轴控制：
-
+### 4. Z 轴与舵机控制
 ```text
 Z UP
 Z DOWN
 SERVO Z 1600 1000
+SERVO 1 1500 500
+SERVO 2 1500 500
 STOP Z
+STOP ALL
 ```
 
-`Z UP` 和 `Z DOWN` 的脉宽在 `Core/Inc/z_axis_config.h` 配置，当前按实机方向 `Z UP=2500us`、`Z DOWN=500us`；MG90S 允许 500~2500us，两台 DS3120MG 仍允许 1000~2000us。平滑移动期间可继续发送舵机命令，每个舵机最多排队 16 条，当前动作完成后按顺序执行。`STATUS` 返回 X/Y 步数、毫米位置、限位和 Z 脉宽状态。`ESTOP` 急停，`CLEAR` 在物理急停释放后清除锁存。
+`Z UP` 和 `Z DOWN` 的脉宽在 `Core/Inc/z_axis_config.h` 配置，当前按实机方向 `Z UP=2500us`、`Z DOWN=500us`；MG90S（`SERVO Z`）允许 500~2500us，两台 DS3120MG（`SERVO 1`、`SERVO 2`）允许 1000~2000us。平滑移动期间可继续发送舵机命令，每个舵机最多排队 16 条，当前动作完成后按顺序执行。`STATUS` 返回 X/Y 步数、毫米位置、使能、回零、限位和 Z 脉宽状态。`ESTOP` 急停，`CLEAR` 在物理急停释放后清除锁存并恢复使能。命令被拒绝时会返回具体原因（如 `ERR X_NOT_HOMED`、`ERR X_LIMIT_MIN`、`ERR X_BUSY`、`ERR X_FAULT`、`ERR ESTOP_ACTIVE` 等）。
 
 ## 当前边界
 

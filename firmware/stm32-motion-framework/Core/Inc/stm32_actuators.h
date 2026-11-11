@@ -23,6 +23,7 @@ bool Servo_Enable(void);
 bool Servo_EnableById(servo_id_t id);
 bool Servo_Move(uint16_t pulse_us,uint32_t duration_ms);
 bool Servo_MoveTo(servo_id_t id,uint16_t pulse_us,uint32_t duration_ms);
+bool Servo_CanMove(servo_id_t id,uint16_t pulse_us,uint32_t duration_ms);
 void Servo_Stop(void);
 void Servo_StopById(servo_id_t id);
 void Servo_EStop(void);

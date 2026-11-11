@@ -27,26 +27,122 @@ static bool axis_limit(motion_axis_id_t id,int dir){return dir<0?limit_stable[id
 void Motion_Init(void){ high_ticks=(MOTION_TICK_HZ*MOTION_STEP_HIGH_US+999999u)/1000000u; if(!high_ticks)high_ticks=1; for(int i=0;i<2;i++){for(int s=0;s<2;s++){GPIO_PinState r=read_limit(i,s);limit_last[i][s]=limit_stable[i][s]=r;limit_ticks[i][s]=MOTION_LIMIT_DEBOUNCE_TICKS;}ax[i]=(motion_axis_t){0,0,0,2000,4000,AXIS_IDLE,0,0,0};phase[i]=0;pulse_left[i]=0;stopping[i]=false;home_stage[i]=0;home_steps[i]=0;HAL_GPIO_WritePin(step_port[i],step_pin[i],GPIO_PIN_RESET);} }
 void Motion_Start(void){ HAL_TIM_Base_Start_IT(&htim6); }
 static bool valid(motion_axis_id_t id,float s){return (unsigned)id<2 && isfinite(s) && s>=MOTION_MIN_SPEED && s<=MOTION_MAX_SPEED;}
-bool Motion_Goto(motion_axis_id_t id,int32_t p,float s){
+static bool check_goto_locked(motion_axis_id_t id,int32_t p,float s){
  if(!valid(id,s))return false;
- uint32_t k=enter();
- bool ok=ax[id].homed&&(ax[id].state==AXIS_IDLE||ax[id].state==AXIS_LIMIT);
+ if(!ax[id].homed||(ax[id].state!=AXIS_IDLE&&ax[id].state!=AXIS_LIMIT))return false;
+ if(p<0||p>max_steps[id])return false;
  int d=p>ax[id].position?1:-1;
- if(p<0||p>max_steps[id])ok=false;
- if(p!=ax[id].position&&axis_limit(id,d))ok=false;
- if(ok&&p!=ax[id].position){ax[id].target=p;ax[id].max_speed=s;ax[id].speed=MOTION_MIN_SPEED;ax[id].state=AXIS_MOVING;phase[id]=0;stopping[id]=false;HAL_GPIO_WritePin(dir_port[id],dir_pin[id],d>0?GPIO_PIN_SET:GPIO_PIN_RESET);}
+ if(p!=ax[id].position&&axis_limit(id,d))return false;
+ return true;
+}
+static bool check_rel_locked(motion_axis_id_t id,int32_t n,float s){
+ if((unsigned)id>=2)return false;
+ if(n==0)return ax[id].state==AXIS_IDLE||ax[id].state==AXIS_LIMIT;
+ if(!valid(id,s))return false;
+ if(ax[id].state!=AXIS_IDLE&&ax[id].state!=AXIS_LIMIT)return false;
+ if(n>max_steps[id]||n<-max_steps[id])return false;
+ int64_t target=(int64_t)ax[id].position+n;
+ if(target<INT32_MIN||target>INT32_MAX)return false;
+ if(ax[id].homed&&(target<0||target>max_steps[id]))return false;
+ int d=n>0?1:-1;
+ if(axis_limit(id,d))return false;
+ return true;
+}
+static void start_move_locked(motion_axis_id_t id,int32_t p,float s,float accel){
+ if(p==ax[id].position)return;
+ int d=p>ax[id].position?1:-1;
+ ax[id].target=p;ax[id].max_speed=s;ax[id].accel=accel;ax[id].speed=MOTION_MIN_SPEED;ax[id].state=AXIS_MOVING;phase[id]=0;stopping[id]=false;
+ HAL_GPIO_WritePin(dir_port[id],dir_pin[id],d>0?GPIO_PIN_SET:GPIO_PIN_RESET);
+}
+const char *Motion_CheckMoveError(motion_axis_id_t id,int32_t v,float s,bool relative){
+ if((unsigned)id>=2)return "ERR FORMAT\r\n";
+ uint32_t k=enter();
+ motion_axis_t a=ax[id];
+ int32_t target=relative?(int32_t)((int64_t)a.position+v):v;
+ int d=relative?(v>0?1:-1):(v>a.position?1:-1);
+ bool lim=((relative?v!=0:v!=a.position)&&axis_limit(id,d));
+ leave(k);
+ if(a.state==AXIS_ESTOP)return "ERR ESTOP_ACTIVE\r\n";
+ if(a.state==AXIS_FAULT)return id==MOTION_AXIS_X?"ERR X_FAULT\r\n":"ERR Y_FAULT\r\n";
+ if(a.state!=AXIS_IDLE&&a.state!=AXIS_LIMIT)return id==MOTION_AXIS_X?"ERR X_BUSY\r\n":"ERR Y_BUSY\r\n";
+ if(!relative&&!a.homed)return id==MOTION_AXIS_X?"ERR X_NOT_HOMED\r\n":"ERR Y_NOT_HOMED\r\n";
+ if((relative&&v==0)||(!relative&&v==a.position))return 0;
+ if(!valid(id,s))return "ERR SPEED\r\n";
+ if(relative){
+  int64_t t64=(int64_t)a.position+v;
+  if(v>max_steps[id]||v<-max_steps[id]||t64<INT32_MIN||t64>INT32_MAX||(a.homed&&(t64<0||t64>max_steps[id])))return "ERR RANGE\r\n";
+ }else if(target<0||target>max_steps[id])return "ERR RANGE\r\n";
+ if(lim){
+  if(id==MOTION_AXIS_X)return d<0?"ERR X_LIMIT_MIN\r\n":"ERR X_LIMIT_MAX\r\n";
+  return d<0?"ERR Y_LIMIT_MIN\r\n":"ERR Y_LIMIT_MAX\r\n";
+ }
+ return 0;
+}
+bool Motion_Goto(motion_axis_id_t id,int32_t p,float s){
+ if((unsigned)id>=2)return false;
+ uint32_t k=enter();
+ bool ok=(p==ax[id].position)?(ax[id].homed&&(ax[id].state==AXIS_IDLE||ax[id].state==AXIS_LIMIT)):check_goto_locked(id,p,s);
+ if(ok)start_move_locked(id,p,s,4000.0f);
  leave(k);return ok;
 }
 bool Motion_MoveRelative(motion_axis_id_t id,int32_t n,float s){
  if((unsigned)id>=2)return false;
- uint32_t k=enter();int64_t target=(int64_t)ax[id].position+n;
- bool ok=target>=INT32_MIN&&target<=INT32_MAX&&Motion_Goto(id,(int32_t)target,s);leave(k);return ok;
+ uint32_t k=enter();
+ bool ok=check_rel_locked(id,n,s);
+ if(ok&&n!=0)start_move_locked(id,ax[id].position+n,s,4000.0f);
+ leave(k);return ok;
+}
+bool Motion_MoveRelativeXY(int32_t nx,float sx,int32_t ny,float sy){
+ uint32_t k=enter();
+ bool ok=check_rel_locked(MOTION_AXIS_X,nx,sx)&&check_rel_locked(MOTION_AXIS_Y,ny,sy);
+ if(ok){
+  float dx=fabsf((float)nx),dy=fabsf((float)ny),len=hypotf(dx,dy);
+  float ax_acc=(len>0.0f&&nx!=0)?fmaxf(4000.0f*(dx/len),100.0f):4000.0f;
+  float ay_acc=(len>0.0f&&ny!=0)?fmaxf(4000.0f*(dy/len),100.0f):4000.0f;
+  if(nx!=0)start_move_locked(MOTION_AXIS_X,ax[MOTION_AXIS_X].position+nx,sx,ax_acc);
+  if(ny!=0)start_move_locked(MOTION_AXIS_Y,ax[MOTION_AXIS_Y].position+ny,sy,ay_acc);
+ }
+ leave(k);return ok;
+}
+bool Motion_GotoXY(int32_t px,float sx,int32_t py,float sy){
+ uint32_t k=enter();
+ int32_t nx=px-ax[MOTION_AXIS_X].position,ny=py-ax[MOTION_AXIS_Y].position;
+ bool ok_x=(nx==0)?(ax[MOTION_AXIS_X].homed&&(ax[MOTION_AXIS_X].state==AXIS_IDLE||ax[MOTION_AXIS_X].state==AXIS_LIMIT)&&px>=0&&px<=max_steps[MOTION_AXIS_X]):check_goto_locked(MOTION_AXIS_X,px,sx);
+ bool ok_y=(ny==0)?(ax[MOTION_AXIS_Y].homed&&(ax[MOTION_AXIS_Y].state==AXIS_IDLE||ax[MOTION_AXIS_Y].state==AXIS_LIMIT)&&py>=0&&py<=max_steps[MOTION_AXIS_Y]):check_goto_locked(MOTION_AXIS_Y,py,sy);
+ bool ok=ok_x&&ok_y;
+ if(ok){
+  float dx=fabsf((float)nx),dy=fabsf((float)ny),len=hypotf(dx,dy);
+  float ax_acc=(len>0.0f&&nx!=0)?fmaxf(4000.0f*(dx/len),100.0f):4000.0f;
+  float ay_acc=(len>0.0f&&ny!=0)?fmaxf(4000.0f*(dy/len),100.0f):4000.0f;
+  if(nx!=0)start_move_locked(MOTION_AXIS_X,px,sx,ax_acc);
+  if(ny!=0)start_move_locked(MOTION_AXIS_Y,py,sy,ay_acc);
+ }
+ leave(k);return ok;
+}
+bool Motion_SetZero(motion_axis_id_t id){
+ if((unsigned)id>=2)return false;
+ uint32_t k=enter();
+ bool ok=ax[id].state==AXIS_IDLE||ax[id].state==AXIS_LIMIT;
+ if(ok){ax[id].position=0;ax[id].target=0;ax[id].homed=true;if(ax[id].state==AXIS_LIMIT)ax[id].state=AXIS_IDLE;}
+ leave(k);return ok;
+}
+bool Motion_SetZeroAll(void){
+ uint32_t k=enter();
+ bool ok=(ax[0].state==AXIS_IDLE||ax[0].state==AXIS_LIMIT)&&(ax[1].state==AXIS_IDLE||ax[1].state==AXIS_LIMIT);
+ if(ok){for(int i=0;i<2;i++){ax[i].position=0;ax[i].target=0;ax[i].homed=true;if(ax[i].state==AXIS_LIMIT)ax[i].state=AXIS_IDLE;}}
+ leave(k);return ok;
 }
 bool Motion_Home(motion_axis_id_t id){
  if((unsigned)id>=2)return false;
  uint32_t k=enter();
  bool ok=ax[id].state==AXIS_IDLE||ax[id].state==AXIS_LIMIT;
  if(ok){ax[id].state=AXIS_HOMING;ax[id].homed=false;ax[id].speed=300;home_ticks[id]=0;home_steps[id]=0;home_stage[id]=axis_limit(id,-1)?1:2;phase[id]=0;HAL_GPIO_WritePin(dir_port[id],dir_pin[id],home_stage[id]==1?GPIO_PIN_SET:GPIO_PIN_RESET);}
+ leave(k);return ok;
+}
+bool Motion_HomeAll(void){
+ uint32_t k=enter();
+ bool ok=(ax[0].state==AXIS_IDLE||ax[0].state==AXIS_LIMIT)&&(ax[1].state==AXIS_IDLE||ax[1].state==AXIS_LIMIT);
+ if(ok){for(int i=0;i<2;i++){ax[i].state=AXIS_HOMING;ax[i].homed=false;ax[i].speed=300;home_ticks[i]=0;home_steps[i]=0;home_stage[i]=axis_limit((motion_axis_id_t)i,-1)?1:2;phase[i]=0;HAL_GPIO_WritePin(dir_port[i],dir_pin[i],home_stage[i]==1?GPIO_PIN_SET:GPIO_PIN_RESET);}}
  leave(k);return ok;
 }
 void Motion_Stop(motion_axis_id_t id){if((unsigned)id>=2)return;uint32_t k=enter();if(ax[id].state==AXIS_MOVING)stopping[id]=true;else if(ax[id].state==AXIS_HOMING){ax[id].state=AXIS_IDLE;ax[id].speed=0;ax[id].target=ax[id].position;}leave(k);}
@@ -71,7 +167,7 @@ void Motion_TickISR(void){
    if(d<0&&hit){if(home_stage[i]==4){a->position=0;done(i,AXIS_IDLE);a->homed=true;}else{home_stage[i]=3;phase[i]=0;HAL_GPIO_WritePin(dir_port[i],dir_pin[i],GPIO_PIN_SET);}continue;}
   }else{
    int64_t delta=(int64_t)a->target-a->position;if(!delta){done(i,AXIS_IDLE);continue;}d=delta>0?1:-1;
-   if(axis_limit((motion_axis_id_t)i,d)){if(a->target==0&&d<0&&a->position>0){a->position=0;done(i,AXIS_IDLE);a->homed=true;}else{a->homed=false;done(i,AXIS_LIMIT);}continue;}
+   if(axis_limit((motion_axis_id_t)i,d)){if(a->homed&&a->target==0&&d<0&&a->position>0){a->position=0;done(i,AXIS_IDLE);a->homed=true;}else{a->homed=false;done(i,AXIS_LIMIT);}continue;}
    float distance=(float)(delta>0?delta:-delta);float dv=a->accel/MOTION_TICK_HZ;
    if(stopping[i]||a->speed*a->speed>=2*a->accel*distance){a->speed-=dv;if(a->speed<MOTION_MIN_SPEED){if(stopping[i]){done(i,AXIS_IDLE);continue;}a->speed=MOTION_MIN_SPEED;}}
    else{a->speed+=dv;if(a->speed>a->max_speed)a->speed=a->max_speed;}

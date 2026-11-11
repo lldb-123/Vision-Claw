@@ -80,4 +80,14 @@ Z 仍是无位置反馈舵机，UP/DOWN 是脉宽位置命令，不代表机构�
 - PB 限位输入增加 10ms 稳定采样；物理急停触发时同时拉高 X/Y EN。
 - Y 负限位已按鹿小班 STM32F407VET6-Mini 外部排针改为 PB6（PCB 焊盘 25，左侧内侧第 20 孔）；Y_MAX 保持 PB3。
 
-仍待后续：串口 DMA/环形缓冲、ACK/DONE 任务编号和去重、软件限位按实际行程标定、Z 反馈和完整机械联调。
+仍待后续：ACK/DONE 任务编号和去重、软件限位按实际行程标定、Z 反馈和完整机械联调。
+
+## 三轴同时控制与联调修复（2026-11-11）
+
+针对整机联调时“只有 Z 轴能动、无法同时控制三轴”的问题完成以下修复：
+
+- **解耦相对移动与回零前置条件**：`MOVE`、`MOVE_MM` 及新增的 `MOVE_XYZ` 不再要求 `homed=1`，未回零时允许正反向相对移动（保留硬限位开关保护与单次最大行程限制）；`GOTO`、`GOTO_MM`、`GOTO_XYZ` 仍要求已回零或已执行 `SET_ZERO`。
+- **上电默认使能一致化**：上电时若物理急停（`PB4`）未触发，X/Y 的 `EN`（`PA4`/`PA5`）默认拉低使能，与 Z 轴上电使能行为一致；新增 `ENABLE ALL`、`DISABLE ALL`、`SET_ZERO [X|Y|ALL]`、`HOME ALL`、`STOP ALL`。
+- **新增单条三轴同步命令**：`MOVE_XYZ <dx_mm> <dy_mm> <z_us> <speed_mm/s> [z_ms]` 与 `GOTO_XYZ <x_mm> <y_mm> <z_us> <speed_mm/s> [z_ms]`，X/Y 按位移比例分配速度与加速度以同步到达，Z 轴并行动作；同时新增 `SERVO 1/2 <us> <ms>` 控制两台 DS3120MG。
+- **USART2 中断 + 512 字节环形缓冲接收**：替换原逐字节轮询 `HAL_UART_Receive`，消除多行命令连发时的 ORE 溢出丢字节问题。
+- **细化串口错误码**：将被笼统合并为 `ERR REJECTED` 的拒绝原因细化为 `ERR X_NOT_HOMED`、`ERR Y_NOT_HOMED`、`ERR X_LIMIT_MIN/MAX`、`ERR Y_LIMIT_MIN/MAX`、`ERR X_BUSY`、`ERR Y_BUSY`、`ERR X_FAULT`、`ERR Y_FAULT`、`ERR ESTOP_ACTIVE` 等。
