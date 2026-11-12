@@ -98,4 +98,5 @@
 - 当前树移除旧 `datasets/midterm-yolo-v1/`、`datasets/midterm-yolo-prelabel-v1/`、`software/midterm-yolo-model/`，并将旧实时演示目录迁至新位置。旧预标注 462 张和首轮 236 张本机忽略 PNG 均逐张与新目录同名图片 SHA-256 一致后删除；旧阶段文件仍可由 Git 提交 `70fa3fb` 追溯。
 - `.gitattributes` 将新目录 698 张 PNG 与 2 份 `.pt` 交给 Git LFS；AnyLabeling JSON 保留原字节，避免换行归一化破坏 manifest 的标注 SHA-256。`.gitignore` 排除新目录的虚拟环境、运行输出、拍摄临时图和缓存。根 README、资料索引和旧进展文档已更新当前入口与历史状态。
 - 验证：复制后 698 张图片 SHA-256 与 manifest 一致，698 份 YOLO 标签逐字节等于 F 盘原件，2 份权重哈希一致；脚本重算 583 个场景组和 558/140 划分与 CSV 完全一致；`train.check_dataset()` 检查六类覆盖通过。使用仓库副本 `best.pt`、仓库相对 `data.yaml` 与原电脑已有 CUDA 环境，只运行验证，得到原 140 张验证图/168 框的 Precision 0.97545、Recall 0.97380、mAP50 0.99464、mAP50-95 0.97014，与 F 盘复核一致。没有新训练或实物实时演示测试。
-- 本节状态：仓库文件与 Git 暂存已整理；提交和远端同步状态以本节后续补记为准。其他未提交 STM32 改动仍保留在工作树。
+- 本节完成状态：视觉整理提交为 `ed40ba8d724aac0a789594949dce0fe84e0dfff2`，已推送到远端 `origin/codex/midterm-vision-model`，`git ls-remote` 与本地 SHA 一致。Git LFS 上传 700/700 个对象、约 514 MB，`git lfs fsck` 通过；新照片和权重在 Git 提交中是 LFS 指针。当前树已无旧阶段目录。整理前的旧图片仍存在于 Git 历史，未对共享历史做强制重写。
+- 本地工作树还有操作前已有的 22 个 STM32 固件文件未提交改动（`git status` 所示）；本轮没有修改或暂存它们，因此“视觉部分已整理并同步”不等于整个工作树零改动。原电脑 F 盘训练工程没有移动或删除。

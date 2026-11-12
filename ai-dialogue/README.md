@@ -15,7 +15,7 @@
 - 目标：工创赛智能分拣，视觉识别物体，X/Y/Z 拨料机构配合六槽分类转盘完成分类。
 - 中期检查视觉的当前入口是[完整资料](../midterm-vision/README.md)：六形状 YOLOv8n、698 张已标注 PNG、883 个框、固定六类顺序 `cube/sph/cyl/tpri/cone/tet`。照片按近重复场景组分为 558 train / 140 val；颜色识别仍独立于此模型。原电脑 `F:\gcs_medium_check_YOLO_model` 保留原件。
 - 用户已完成正式训练。仓库 `midterm-vision/weights/best.pt` 是最佳权重；在同一拍摄批次 140 张验证图上复核 Precision 0.975、Recall 0.974、mAP50 0.995、mAP50-95 0.970。仍有黑色圆锥误判四面体的样例；**没有新摆放、混放和不同光照的独立测试**。详见[011](2026-11-12-011-prelabel-shape-correction.md)。
-- 用户本次授权清理中期视觉分支。旧首轮 `datasets/midterm-yolo-v1`、未审核的 `datasets/midterm-yolo-prelabel-v1` 和旧 `software/midterm-yolo-model` 从当前树移除，独立实时演示移至 `midterm-vision/live-demo/`；历史快照仍可由提交 `70fa3fb` 追溯。此前“暂不提交照片”和“预标注尚未人工复核”的状态已被完整数据与本次明确要求取代。新权重尚未在实时演示窗口做现场验收。
+- 中期视觉分支整理已提交并同步到远端 `origin/codex/midterm-vision-model`（内容提交 `ed40ba8`）。旧首轮 `datasets/midterm-yolo-v1`、未审核的 `datasets/midterm-yolo-prelabel-v1` 和旧 `software/midterm-yolo-model` 从当前树移除，实时演示移至 `midterm-vision/live-demo/`；历史快照仍可由提交 `70fa3fb` 追溯。此前“暂不提交照片”和“预标注尚未人工复核”的状态已被完整数据与本次明确要求取代。新权重尚未在实时窗口做现场验收；本地另有原有 STM32 未提交改动，本轮未碰。
 - 视觉早期方案与首轮过程见[009](2026-11-10-009-yolo-color-shape-annotation.md)、[010](2026-11-11-010-midterm-dataset-plan.md)和[旧进展归档](../docs/midterm-yolo-progress-since-a24ea14-2026-11-11.md)，均为历史记录。中期检查只要求电脑本地训练与推理，不要求 Orange Pi 部署。
 - 用户负责视觉、通信及上位机整体框架；队友主要负责 STM32 和电机底层。正式通信接口仍待商议。
 - 四个电机：X/Y 为 42 步进电机，Z 为 MG90S 舵机，分类转盘为 DS3120 舵机。
