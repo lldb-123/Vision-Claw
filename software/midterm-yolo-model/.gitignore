@@ -1,8 +1,0 @@
-.venv/
-dataset*/
-captures/
-runs/
-*.pt
-__pycache__/
-*.pyc
-dataset_photos/

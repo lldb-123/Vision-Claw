@@ -1,9 +1,0 @@
-train: images/train
-val: images/val
-names:
-  0: cube
-  1: sph
-  2: cyl
-  3: tpri
-  4: cone
-  5: tet

@@ -1,0 +1,34 @@
+{
+  "created": "2026-11-12T11:06:01+08:00",
+  "images": 698,
+  "annotations_json": 668,
+  "yolo_labels_txt": 698,
+  "empty_labels": 30,
+  "objects": 883,
+  "classes": [
+    "cube",
+    "sph",
+    "cyl",
+    "tpri",
+    "cone",
+    "tet"
+  ],
+  "boxes_by_class": {
+    "cube": 177,
+    "sph": 78,
+    "cyl": 201,
+    "tpri": 160,
+    "cone": 149,
+    "tet": 118
+  },
+  "source_batches": {
+    "first_236": 236,
+    "later_462": 462
+  },
+  "image_kinds": {
+    "single": 625,
+    "empty": 30,
+    "mixed": 43
+  },
+  "split": "not_assigned"
+}

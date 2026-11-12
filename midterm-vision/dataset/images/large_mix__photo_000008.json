@@ -1,0 +1,164 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "sph",
+      "text": "",
+      "points": [
+        [
+          877.94,
+          355.31
+        ],
+        [
+          999.41,
+          461.74
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cube",
+      "text": "",
+      "points": [
+        [
+          371.27,
+          324.0
+        ],
+        [
+          539.89,
+          497.61
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tpri",
+      "text": "",
+      "points": [
+        [
+          421.19,
+          213.66
+        ],
+        [
+          520.87,
+          333.74
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cyl",
+      "text": "",
+      "points": [
+        [
+          667.57,
+          365.27
+        ],
+        [
+          790.33,
+          521.49
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tpri",
+      "text": "",
+      "points": [
+        [
+          739.55,
+          508.99
+        ],
+        [
+          885.55,
+          642.33
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cone",
+      "text": "",
+      "points": [
+        [
+          929.52,
+          495.27
+        ],
+        [
+          1057.14,
+          638.53
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tpri",
+      "text": "",
+      "points": [
+        [
+          564.85,
+          375.12
+        ],
+        [
+          679.03,
+          520.5
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cube",
+      "text": "",
+      "points": [
+        [
+          598.71,
+          246.89
+        ],
+        [
+          699.46,
+          375.62
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cone",
+      "text": "",
+      "points": [
+        [
+          354.51,
+          547.93
+        ],
+        [
+          484.7,
+          643.05
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "large_mix__photo_000008.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280,
+  "text": ""
+}

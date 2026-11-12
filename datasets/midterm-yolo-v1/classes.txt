@@ -1,6 +1,0 @@
-cube
-sph
-cyl
-tpri
-cone
-tet

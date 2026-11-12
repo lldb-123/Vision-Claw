@@ -1,0 +1,42 @@
+{
+  "scope": "2026 midterm six-shape YOLOv8n, same-capture validation only",
+  "source_run": "train_20261112_115424",
+  "model": "../weights/best.pt",
+  "dataset": "../dataset/data.yaml",
+  "training": {
+    "epochs_requested": 100,
+    "last_logged_epoch": 99,
+    "best_epoch": 79,
+    "patience": 20,
+    "imgsz": 640,
+    "batch": 8,
+    "workers": 0,
+    "seed": 42,
+    "torch": "2.14.1+cu130",
+    "ultralytics": "8.4.210",
+    "device": "NVIDIA GeForce RTX 5060 Laptop GPU"
+  },
+  "validation": {
+    "images": 140,
+    "objects": 168,
+    "precision": 0.975453027309281,
+    "recall": 0.9738012983388349,
+    "map50": 0.994642857142857,
+    "map50_95": 0.9701414397605015,
+    "per_class": {
+      "cube": {"precision": 0.9806, "recall": 1.0, "map50_95": 0.9875},
+      "sph": {"precision": 1.0, "recall": 0.9567, "map50_95": 0.9713},
+      "cyl": {"precision": 1.0, "recall": 0.9873, "map50_95": 0.9790},
+      "tpri": {"precision": 1.0, "recall": 0.9359, "map50_95": 0.9628},
+      "cone": {"precision": 0.9898, "recall": 0.9630, "map50_95": 0.9688},
+      "tet": {"precision": 0.8823, "recall": 1.0, "map50_95": 0.9514}
+    },
+    "empty_images_checked_at_conf_0_25": 6,
+    "empty_false_detections": 0
+  },
+  "known_limitations": [
+    "Training and validation images come from one capture period; no independent test set exists.",
+    "One reviewed validation preview classified a black cone as tet."
+  ],
+  "best_weight_sha256": "b52bae10de7e5b68f81d724411b482a91ae9e468e2fa92ecde8ce81955404a1f"
+}

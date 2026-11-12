@@ -10,24 +10,19 @@
 
 ## 当前状态
 
-更新：2026-11-11。
+更新：2026-11-12。
 
 - 目标：工创赛智能分拣，视觉识别物体，X/Y/Z 拨料机构配合六槽分类转盘完成分类。
-- 中期检查视觉范围：YOLOv8n 检测正方体、球体、圆柱体、三棱柱、圆锥体、四面体，传统视觉识别黑、白、红、黄、深蓝、浅蓝；六个形状标签按 ID 0–5 为 `cube/sph/cyl/tpri/cone/tet`。详见[009](2026-11-10-009-yolo-color-shape-annotation.md)、[拍摄方案](../docs/midterm-yolov8n-dataset-800-plan-2026-11-11.md)。
-- 最新视觉进展见[自 `a24ea14` 后的归档](../docs/midterm-yolo-progress-since-a24ea14-2026-11-11.md)：用户已手动完成首轮 YOLOv8n 训练；独立实时演示已建立，三棱柱混放误判待补样本；其余 462 张照片已生成 439 个待审核 AnyLabeling JSON，保存在[第二批候选数据](../datasets/midterm-yolo-prelabel-v1/README.md)。候选框尚未人工复核，也没有第二轮训练或独立测试。
-- 用户最新要求：暂不在当前分支保留任何照片，原电脑 698 张照片和预标注副本照常保留；首轮 236 张和剩余 462 张 PNG 待最后一次统一上传。本分支当前只保留两批的标签/候选 JSON、清单、代码与模型副本；旧提交历史仍可追溯首轮照片。
-- 当前按约 800 张含盲测的上限分批采集：先 96 张打通标注/训练，约 400 张评估是否继续；单件已拍很多时，无遮挡多件可缩到约 80–120 张，按错例继续补拍；原电脑固定相机目录已清点到 698 张正式候选照片（36 形状×颜色组、43 张混合、30 张空盘）；仅抽样目视检查；原电脑已建立 236 张首轮 AnyLabeling 标注副本和操作指南，首轮 226 张有目标图片已保存 AnyLabeling JSON（256 框），10 张空盘无 JSON；已导出 YOLO 并准备[首轮数据集](../datasets/midterm-yolo-v1/README.md)：236 张原图留在原电脑、236 个同名标签在仓库，196 train / 40 val；用户已手动完成首轮 YOLOv8n 训练，`best.pt` 已生成：40 张验证图/44 框 mAP50=0.985、mAP50-95=0.946；未入训练的多件原图抽查发现圆锥等误分类，详见[010](2026-11-11-010-midterm-dataset-plan.md)。Windows 本地[训练工程](../software/midterm-yolo-model/README.md)已生成，并将固定相机脚本改为 Enter 选组、空格连续拍、B 换组、Q 退出；旧 captures 目录的 8 张照片因自动审核拒绝删除仍在原电脑，新照片存独立 dataset_photos。相机单帧探测通过，正式候选照片已采集并完成首轮数据集。目标先是电脑本地推理，不要求 Orange Pi 部署。
-- 用户已用 AnyLabeling 标注并导出一张练习图，原电脑桌面导出 `classes.txt` 为 `cone,cube,cyl,sph,tpri`，与固定 ID 顺序不同；代码按类名重映射。该图 7 个框、没有 `tet`，不能作为六类模型训练集。详见[010](2026-11-11-010-midterm-dataset-plan.md)。
-- 正式拍摄前曾从当前外接相机取得一张 1280×720 托盘画面：斜视角可见中央方块侧面、托盘完整入镜；左右外部插排/设备/线缆和左上拨料件进入画面。这是拍摄前单帧人工检查，后续已完成正式采集和首轮训练；详见[010 相机续记](2026-11-11-010-midterm-dataset-plan.md#2026-11-11-续正式拍摄前检查当前相机画面)。
-- 原电脑 RTX 5060 Laptop GPU 约 8 GiB 的训练环境已准备：Python 3.12.13、PyTorch 2.14.1+cu130、Ultralytics 8.4.210，真实 CUDA 张量运算与仓库数据配置解析通过；预训练 `yolov8n.pt` 已加载，用户已手动训练完成，最佳权重位于原电脑 `F:\gcs_medium_check_YOLO_model\runs\train_20261111_212410\weights\best.pt`；模型副本已纳入仓库。原电脑另有独立 `F:\VisionClaw_LiveDemo` 实时六形状演示窗口；单帧相机与 GPU 推理链路通过，用户反馈三棱柱常被判为正方体；核对 36 张单件 tpri 的 JSON/YOLO 类别与坐标一致，训练集中仅 30 个三棱柱框且混合图无该类，未入训练的一张混合图可复现模型输出 cube，具体实时画面原因仍需核实。未入首轮的 462 张原图副本及模型已整理在原电脑工程 `F:\gcs_medium_check_YOLO_model\annotation_remaining_v1`；已按原比例生成 439 张候选框 JSON、3 张未检出、20 张空盘未推理，全部待 AnyLabeling 人工复核；工程根目录有 `项目文件说明.md`。
-- 视觉多方案调研及上位机既有范围见[006](2026-11-04-006-vision-options-research.md)和[完整调研](../docs/vision-system-options-2026-11-04.md)；中期检查的六形状目标以本次决定为准。
+- 中期检查视觉的当前入口是[完整资料](../midterm-vision/README.md)：六形状 YOLOv8n、698 张已标注 PNG、883 个框、固定六类顺序 `cube/sph/cyl/tpri/cone/tet`。照片按近重复场景组分为 558 train / 140 val；颜色识别仍独立于此模型。原电脑 `F:\gcs_medium_check_YOLO_model` 保留原件。
+- 用户已完成正式训练。仓库 `midterm-vision/weights/best.pt` 是最佳权重；在同一拍摄批次 140 张验证图上复核 Precision 0.975、Recall 0.974、mAP50 0.995、mAP50-95 0.970。仍有黑色圆锥误判四面体的样例；**没有新摆放、混放和不同光照的独立测试**。详见[011](2026-11-12-011-prelabel-shape-correction.md)。
+- 用户本次授权清理中期视觉分支。旧首轮 `datasets/midterm-yolo-v1`、未审核的 `datasets/midterm-yolo-prelabel-v1` 和旧 `software/midterm-yolo-model` 从当前树移除，独立实时演示移至 `midterm-vision/live-demo/`；历史快照仍可由提交 `70fa3fb` 追溯。此前“暂不提交照片”和“预标注尚未人工复核”的状态已被完整数据与本次明确要求取代。新权重尚未在实时演示窗口做现场验收。
+- 视觉早期方案与首轮过程见[009](2026-11-10-009-yolo-color-shape-annotation.md)、[010](2026-11-11-010-midterm-dataset-plan.md)和[旧进展归档](../docs/midterm-yolo-progress-since-a24ea14-2026-11-11.md)，均为历史记录。中期检查只要求电脑本地训练与推理，不要求 Orange Pi 部署。
 - 用户负责视觉、通信及上位机整体框架；队友主要负责 STM32 和电机底层。正式通信接口仍待商议。
 - 四个电机：X/Y 为 42 步进电机，Z 为 MG90S 舵机，分类转盘为 DS3120 舵机。
 - 整机上位机演示工程已导入 [software/upper-computer](../software/upper-computer/README.md)，尚未完成整机实物联调。
 - **Orange Pi 5 Plus 已由用户实物确认启动图形桌面，并通过 SSH 登录。** 11月10日进一步从 SSH 实测 Orange Pi 1.2.2 Jammy / Ubuntu 22.04.5 ARM64、Python 3.10.12；系统时间已同步，PyPI HTTPS 返回 200，`apt update` 与 `python3-pip`、`python3-venv` 安装完成。项目 NumPy/OpenCV/pySerial、相机、STM32 及视觉程序尚未在板端部署。详见[008](2026-11-10-008-orangepi-environment-audit.md)；首次烧录与供电历史见[004](2026-11-07-004-orangepi5plus-ubuntu-flash-guide.md)。
 - Windows 与板卡网线直连 `192.168.50.1/24` ↔ `192.168.50.2`；SSH 和外网连通曾验证。旧记录中的“板端日期仍停在 2026-08-31、HTTPS 证书未生效”已由 11月10日实测结果替代。网络历史见[005](2026-11-07-005-orangepi-no-keyboard-network.md)、最新状态见[008](2026-11-10-008-orangepi-environment-audit.md)。
 - 已整理 [Orange Pi 5 Plus 初始化与规范使用手册](../docs/orangepi-5-plus-initialization-guide.md)，包含系统/供电、网络与校时、中文、SSH、Python、相机、串口、训练/转换/板端 RKNN 环境、服务、备份及分阶段验收。**本轮只编写和校验文档，没有执行板端初始化，也未合并分支。** 优先按实际系统身份、校时、HTTPS/apt、中文、重启验证的顺序推进。
-- 远端 `main` 已包含 Orange Pi 首次上电与 STM32 运动控制分支的合并；`codex/vision-yolo` 仍单独保留。`codex/midterm-vision-model` 从 `main` 的 `a3b1ccc` 建立；本轮视觉归档前远端最新提交为 `a24ea14`，首轮数据集和环境说明均已在该分支；未合并其他分支或部署模型。
 - 单电机旧版短时程序已让实物沿同一方向小幅转动；并非原地来回摆。
 - **最新版已改成持续旋转并烧录校验成功，持续运行的实物效果尚待用户反馈。**
 - 最新固件：PA0=STEP、PA1=DIR、PA4=EN；按 RESET，约 1 秒后起转，从 50Hz 加速到 200Hz 后持续同方向旋转。下载结束时 CPU 暂停、EN 为高；RESET 会启动，不是停止键；停止断开电机电池。
@@ -49,6 +44,7 @@
 | 2026-11-10 | [008：Orange Pi 5 Plus 前置环境实测](2026-11-10-008-orangepi-environment-audit.md) | SSH 核对系统、网络和 NPU，完成 apt/pip/venv 前置安装；尚未部署视觉 |
 | 2026-11-10，11日续 | [009：中期检查颜色与形状识别方案](2026-11-10-009-yolo-color-shape-annotation.md) | 确定六形状 YOLO＋传统颜色，分批采集与预标注；尚未正式训练 |
 | 2026-11-11 | [010：中期检查数据集、训练与预标注](2026-11-11-010-midterm-dataset-plan.md) | 698 张候选图、236 张首轮训练集、YOLOv8n 最佳权重、独立实时演示、462 张剩余照片的未审核候选框；详见[本轮归档](../docs/midterm-yolo-progress-since-a24ea14-2026-11-11.md) |
+| 2026-11-12 | [011：预标注校正、698 张正式训练与分支整理](2026-11-12-011-prelabel-shape-correction.md) | 完整数据和最佳模型移入 `midterm-vision/`，清理首轮/预标注半成品；同批次验证 mAP50-95 约 0.970，独立测试未做 |
 
 本次记录覆盖此前这一个长对话中积累的内容；无法确认的早期发生日期未逐条推断。
 

@@ -1,0 +1,197 @@
+{
+  "source": ".",
+  "seed": 42,
+  "validation_ratio_target": 0.2,
+  "grouping": {
+    "single": "same group and nearly identical box center/size; connected components",
+    "mixed": "same layout or tray thumbnail mean absolute pixel difference < 5; connected components",
+    "empty": "consecutive runs of three photos"
+  },
+  "images": {
+    "train": 558,
+    "val": 140
+  },
+  "scene_groups": 583,
+  "scene_groups_by_split": {
+    "train": 461,
+    "val": 122
+  },
+  "objects": {
+    "train": {
+      "cube": 141,
+      "sph": 61,
+      "cyl": 159,
+      "tpri": 133,
+      "cone": 122,
+      "tet": 99
+    },
+    "val": {
+      "cube": 36,
+      "sph": 17,
+      "cyl": 42,
+      "tpri": 27,
+      "cone": 27,
+      "tet": 19
+    }
+  },
+  "capture_groups": {
+    "cone_black": {
+      "train": 13,
+      "val": 3
+    },
+    "cone_blue": {
+      "train": 13,
+      "val": 3
+    },
+    "cone_navyblue": {
+      "train": 14,
+      "val": 4
+    },
+    "cone_red": {
+      "train": 14,
+      "val": 4
+    },
+    "cone_white": {
+      "train": 10,
+      "val": 2
+    },
+    "cone_yellow": {
+      "val": 4,
+      "train": 14
+    },
+    "cube_black": {
+      "train": 16,
+      "val": 4
+    },
+    "cube_blue": {
+      "train": 15,
+      "val": 4
+    },
+    "cube_navyblue": {
+      "train": 16,
+      "val": 4
+    },
+    "cube_red": {
+      "train": 16,
+      "val": 4
+    },
+    "cube_white": {
+      "train": 16,
+      "val": 4
+    },
+    "cube_yellow": {
+      "train": 17,
+      "val": 4
+    },
+    "cyl_black": {
+      "train": 20,
+      "val": 5
+    },
+    "cyl_blue": {
+      "train": 20,
+      "val": 5
+    },
+    "cyl_navyblue": {
+      "train": 20,
+      "val": 5
+    },
+    "cyl_red": {
+      "train": 20,
+      "val": 5
+    },
+    "cyl_white": {
+      "train": 20,
+      "val": 5
+    },
+    "cyl_yellow": {
+      "train": 21,
+      "val": 5
+    },
+    "empty": {
+      "train": 24,
+      "val": 6
+    },
+    "large_mix": {
+      "train": 14,
+      "val": 4
+    },
+    "small_mix": {
+      "val": 5,
+      "train": 20
+    },
+    "sph_black": {
+      "train": 8,
+      "val": 2
+    },
+    "sph_blue": {
+      "val": 2,
+      "train": 8
+    },
+    "sph_navyblue": {
+      "train": 8,
+      "val": 2
+    },
+    "sph_red": {
+      "val": 2,
+      "train": 8
+    },
+    "sph_white": {
+      "train": 8,
+      "val": 2
+    },
+    "sph_yellow": {
+      "val": 2,
+      "train": 8
+    },
+    "tet_black": {
+      "train": 10,
+      "val": 3
+    },
+    "tet_blue": {
+      "train": 10,
+      "val": 2
+    },
+    "tet_navyblue": {
+      "val": 3,
+      "train": 11
+    },
+    "tet_red": {
+      "train": 10,
+      "val": 2
+    },
+    "tet_white": {
+      "train": 10,
+      "val": 2
+    },
+    "tet_yellow": {
+      "train": 10,
+      "val": 3
+    },
+    "tpri_black": {
+      "train": 15,
+      "val": 4
+    },
+    "tpri_blue": {
+      "train": 17,
+      "val": 4
+    },
+    "tpri_navyblue": {
+      "val": 4,
+      "train": 15
+    },
+    "tpri_red": {
+      "val": 4,
+      "train": 16
+    },
+    "tpri_white": {
+      "train": 17,
+      "val": 4
+    },
+    "tpri_yellow": {
+      "train": 16,
+      "val": 4
+    }
+  },
+  "test": "not assigned; use new independent camera placements later",
+  "created": "2026-11-12T11:42:35+08:00"
+}
