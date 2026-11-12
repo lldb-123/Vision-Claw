@@ -32,7 +32,8 @@
 - **Y_MIN 已从 PB2 改为 PB6**：PB6 对应开发板左侧内侧第 20 孔、PCB 焊盘 25；Y_MAX 仍为 PB3。完整 ArmClang/ArmLink/FromELF 构建通过，用户已实测 Y 轴回零。
 - **Z 轴预设端点和动作队列已更新**：`Z UP=2500us`、`Z DOWN=500us`，保持 700ms 平滑移动。每个舵机增加 16 条动作队列，移动中连续发送命令会按顺序执行；队列测试和完整构建通过。
 - **MG90S 独立脉宽范围已扩展到 500~2500us**；DS3120MG 两路仍保持 1000~2000us。预设端点已按实机方向改为 `Z UP=2500us`、`Z DOWN=500us`；所有脉宽与角度路径按舵机 ID 分流，范围测试和完整构建通过。
-- **XYZ 三轴同时串口控制与未回零联调限制已修复**：`MOVE`/`MOVE_MM`/`MOVE_XYZ` 不再强制要求先回零，非急停状态下上电默认使能 X/Y/Z；USART2 改为中断 + 512B 环形缓冲接收消除多行命令连发丢字节；新增 `MOVE_XYZ`、`GOTO_XYZ`、`ENABLE ALL`、`SET_ZERO`、`HOME ALL`、`STOP ALL`、`SERVO 1|2` 及具体错误原因返回，Keil V6.24 编译 0 错误 0 警告，待实物烧录验证。
+- **XYZ 三轴同时串口控制与未回零联调限制已修复**：`MOVE`/`MOVE_MM`/`MOVE_XYZ` 不再强制要求先回零；USART2 改为中断 + 512B 环形缓冲接收；新增 `MOVE_XYZ`、`GOTO_XYZ`、`ENABLE ALL`、`SET_ZERO`、`HOME ALL`、`STOP ALL`、`SERVO 1|2` 及具体错误原因返回。上电自动使能 X/Y 的临时逻辑已撤销：当前 X/Y 上电默认禁用，`CLEAR` 成功后也保持禁用，必须显式使能。
+- **X/Y 物理限位逻辑已移除**：PB0、PB1、PB3、PB6 不再读取；X/Y 使用暂定 `0～200mm` 软件行程（80 脉冲/mm，即 0～16000 脉冲）。`HOME`/`HOME ALL` 改为当前位置软件置零，不寻找限位开关；PB4 急停保留。
 
 ## 对话索引
 
@@ -45,6 +46,7 @@
 | 2026-11-09 | [006：STM32F4 依赖检查、工程路径与三路舵机](2026-11-09-006-stm32-dependencies.md) | HAL/Device/Core 本地化、工程相对路径修复；新增 PA6/PC7/PC8 三路 50Hz 独立 PWM。ArmClang/ArmLink 验证通过，未烧录 |
 | 2026-11-11 | [007：GitHub 同步与 STM32 固件整理](2026-11-11-007-git-sync-and-firmware-audit.md) | 从原始目录选择性迁移三路舵机、PB6、HAL/CMSIS 和 Keil 配置；保留远程运动安全修复，完整构建通过 |
 | 2026-11-11 | [008：XYZ 三轴同时控制与联调问题修复](2026-11-11-008-xyz-simultaneous-control-fix.md) | 修复相对移动强制回零锁死、串口轮询丢字节；新增 `MOVE_XYZ`/`GOTO_XYZ`/`SET_ZERO` 与详细错误码，Keil 构建通过 |
+| 2026-11-11 | [009：三轴安全启用、软件行程与操作手册](2026-11-11-009-three-axis-safety-guide.md) | 撤销 X/Y 自动使能；移除物理限位并改用 `0～200mm` 软件行程；Keil V6.22 串行构建通过并生成 HEX |
 
 本次记录覆盖此前这一个长对话中积累的内容；无法确认的早期发生日期未逐条推断。
 

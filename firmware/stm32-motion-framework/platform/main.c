@@ -48,7 +48,7 @@ static void init(void){
  RCC_ClkInitTypeDef clk={0};clk.ClockType=RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;clk.SYSCLKSource=RCC_SYSCLKSOURCE_PLLCLK;clk.AHBCLKDivider=RCC_SYSCLK_DIV1;clk.APB1CLKDivider=RCC_HCLK_DIV2;clk.APB2CLKDivider=RCC_HCLK_DIV1;
  if(HAL_RCC_ClockConfig(&clk,FLASH_LATENCY_2)!=HAL_OK)fatal();
  __HAL_RCC_GPIOA_CLK_ENABLE();__HAL_RCC_GPIOB_CLK_ENABLE();__HAL_RCC_GPIOC_CLK_ENABLE();__HAL_RCC_GPIOD_CLK_ENABLE();__HAL_RCC_TIM6_CLK_ENABLE();__HAL_RCC_TIM3_CLK_ENABLE();__HAL_RCC_USART2_CLK_ENABLE();
- pins(GPIOB,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_6,GPIO_MODE_INPUT,GPIO_PULLUP,0);
+ pins(GPIOB,GPIO_PIN_4,GPIO_MODE_INPUT,GPIO_PULLUP,0);
  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3,GPIO_PIN_RESET);
  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4|GPIO_PIN_5,GPIO_PIN_SET);
  pins(GPIOA,GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5,GPIO_MODE_OUTPUT_PP,GPIO_NOPULL,0);
@@ -69,7 +69,6 @@ static void init(void){
  if(HAL_TIM_PWM_ConfigChannel(&htim3,&pwm,TIM_CHANNEL_3)!=HAL_OK)fatal();
  if(!Servo_Init())fatal();
  HAL_NVIC_SetPriority(TIM6_DAC_IRQn,1,0);HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);Motion_Init();Motion_Start();
- if(HAL_GPIO_ReadPin(ESTOP_GPIO_Port,ESTOP_Pin)!=MOTION_ESTOP_ACTIVE){HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4|GPIO_PIN_5,GPIO_PIN_RESET);}
 }
 static float clamp_axis_speed(float steps_ps){
  if(steps_ps<MOTION_MIN_SPEED)return MOTION_MIN_SPEED;
@@ -87,7 +86,7 @@ static void command(char *s){
   for(int i=0;i<2;i++){
    motion_axis_t a;Motion_Snapshot((motion_axis_id_t)i,&a);
    unsigned en=(HAL_GPIO_ReadPin(GPIOA,i?GPIO_PIN_5:GPIO_PIN_4)==GPIO_PIN_RESET)?1u:0u;
-   snprintf(b,sizeof b,"STATUS %c pos_steps=%ld pos_mm=%.2f target=%ld state=%u enabled=%u homed=%u min=%u max=%u\r\n",i?'Y':'X',(long)a.position,(float)a.position/(i?Y_STEPS_PER_MM:X_STEPS_PER_MM),(long)a.target,(unsigned)a.state,en,a.homed,a.limit_min,a.limit_max);
+   snprintf(b,sizeof b,"STATUS %c pos_steps=%ld pos_mm=%.2f target=%ld state=%u enabled=%u homed=%u\r\n",i?'Y':'X',(long)a.position,(float)a.position/(i?Y_STEPS_PER_MM:X_STEPS_PER_MM),(long)a.target,(unsigned)a.state,en,a.homed);
    reply(b);
   }
   servo_status_t z;Servo_Snapshot(&z);
@@ -98,7 +97,7 @@ static void command(char *s){
  else if(strcmp(s,"CLEAR")==0){
   uint32_t k=__get_PRIMASK();__disable_irq();
   ok=Motion_ClearFault();
-  if(ok){Servo_ClearFault();HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4|GPIO_PIN_5,GPIO_PIN_RESET);}
+  if(ok){Servo_ClearFault();HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4|GPIO_PIN_5,GPIO_PIN_SET);}
   __set_PRIMASK(k);
  }
  else if(strcmp(s,"ENABLE ALL")==0||strcmp(s,"ENABLE X")==0||strcmp(s,"ENABLE Y")==0||strcmp(s,"ENABLE Z")==0){

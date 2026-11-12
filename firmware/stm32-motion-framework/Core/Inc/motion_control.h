@@ -5,7 +5,7 @@
 
 typedef enum { MOTION_AXIS_X=0, MOTION_AXIS_Y=1, MOTION_AXIS_COUNT=2 } motion_axis_id_t;
 typedef enum { AXIS_IDLE=0, AXIS_MOVING, AXIS_HOMING, AXIS_LIMIT, AXIS_ESTOP, AXIS_FAULT } motion_axis_state_t;
-typedef struct { int32_t position, target; float speed, max_speed, accel; motion_axis_state_t state; bool limit_min, limit_max, homed; } motion_axis_t;
+typedef struct { int32_t position, target; float speed, max_speed, accel; motion_axis_state_t state; bool homed; } motion_axis_t;
 void Motion_Init(void);
 void Motion_Start(void);
 void Motion_TickISR(void);

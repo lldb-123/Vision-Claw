@@ -1,5 +1,7 @@
 # XYZ 三轴运动控制工程
 
+> 2026-11-11 更新：当前固件已取消 X/Y 上电自动使能，也不再读取 PB0、PB1、PB3、PB6 的物理限位开关。上电和 `CLEAR` 成功后 PA4、PA5 均保持高电平，必须显式执行 `ENABLE X` / `ENABLE Y`。X/Y 使用暂定 `0～200mm` 软件行程，`HOME` 等同当前位置置零。最新操作流程见[三轴电机使用说明](三轴电机使用说明.md)。
+
 当前硬件模型：X/Y 为 STEP/DIR 步进电机，MG90S 与两台 DS3120MG 使用三路独立 PWM。不是三路步进，也不提供 XYZ 直线插补；自动避障、拨料轨迹和整机 SORT 尚未集成。
 
 ## 打开与构建
@@ -16,8 +18,6 @@
 | MG90S 信号 | PA6 / TIM3_CH1 | 50Hz；上电以 1500us 启动 PWM |
 | DS3120MG #1 信号 | PC7 / TIM3_CH2 | 50Hz；上电以 1500us 启动 PWM |
 | DS3120MG #2 信号 | PC8 / TIM3_CH3 | 50Hz；上电以 1500us 启动 PWM |
-| X 负/正限位 | PB0 / PB1 | 低有效，上拉 |
-| Y 负/正限位 | PB6 / PB3 | 低有效，上拉 |
 | 急停输入 | PB4 | 低有效，上拉 |
 | 串口 TX / RX | PD5 / PD6 | USART2，115200 8N1 |
 
@@ -29,17 +29,17 @@ PA6、PC7、PC8 均使用 TIM3 的独立比较通道，共用 PSC=83、ARR=19999
 
 | 命令 | 含义 |
 |---|---|
-| STATUS | 查询 X/Y 位置、状态、回零、限位；Z 当前输出/目标脉宽、使能、busy、estop |
+| STATUS | 查询 X/Y 位置、状态、使能、软件零点；Z 当前输出/目标脉宽、使能、busy、estop |
 | ENABLE X / ENABLE Y | 启用对应步进驱动 |
 | ENABLE Z | 兼容旧命令；三路 PWM 已在上电初始化时启动 |
 | MOVE X 200 200 | X 相对移动 200 脉冲，最高 200 脉冲/秒；Y 同理 |
 | GOTO Y 1000 300 | Y 移动到软件脉冲坐标 1000；X 同理 |
-| HOME X / HOME Y | 朝负限位回零，带退离和低速复寻，30秒超时 |
+| HOME X / HOME Y | 当前等同原地软件置零，不驱动电机 |
 | SERVO Z 1600 1000 | Z 输出从当前脉宽平滑变化到 1600us，历时 1000ms |
-| STOP X / STOP Y | 定位时减速停止；回零时取消回零 |
+| STOP X / STOP Y | 定位时减速停止 |
 | STOP Z | 停止更新目标，保持当前输出脉宽 |
 | ESTOP | 锁存三轴急停，终止 XY 脉冲，X/Y EN 拉高，三路舵机保持最后输出脉宽 |
-| CLEAR | 物理急停释放后清除锁存；XY 再次运动需重新 ENABLE |
+| CLEAR | 物理急停释放后清除锁存并禁用 X/Y；再次运动需重新 ENABLE |
 
 硬件急停输入在 TIM6 中断内停止 XY 脉冲并冻结 Z 输出，保留使能/保持力；串口 ESTOP 额外断开 XY 使能。Z 无位置反馈，冻结 PWM 目标不能保证实物瞬间停止。需要断电的紧急停止应由实际硬件回路实现。
 
@@ -52,7 +52,7 @@ Z busy=0 仅代表目标输出过程结束，不代表实物已经到位。界�
 1. 先保持三台舵机空载，观察上电 X/Y EN 高且 PA6、PC7、PC8 均为 50Hz、1500us PWM。
 2. 空载验证各路 ENABLE 和短距离 XY 正反向移动。
 3. 分别测量 PA6、PC7、PC8 的 20ms 周期，测试合法、越界及忙时 SERVO 命令，再测试 STOP Z、ESTOP、CLEAR。
-4. 核对 XY 限位、回零和方向；回零开关消抖、退离距离还需要结合实物完善。
+4. 核对 X/Y 方向和软件行程；当前不读取物理限位，软件最大行程暂设 200mm。
 5. 分别校准 Z 抬起/拨料脉宽与 XY 每毫米脉冲数，再设计带安全高度约束的组合分拣轨迹。
 
 两台 DS3120MG 已接入 TIM3_CH2 和 TIM3_CH3。代码中可通过 `Servo_SetPulseUs(SERVO_DS3120_1/2, us)` 或 `Servo_MoveTo(...)` 独立控制；当前串口命令仍只提供 MG90S 的 Z 调试入口。串口没有正式任务编号、DONE、重试去重和连续高速收包保证。
@@ -74,11 +74,9 @@ Z 仍是无位置反馈舵机，UP/DOWN 是脉宽位置命令，不代表机构�
 
 已按实物调试前审查修正：
 
-- `MOVE_MM` 允许负相对位移；`GOTO_MM` 仍要求绝对坐标在 0 到配置最大行程内。
-- 回零超时改为 120 秒，并增加 400000 脉冲最大回零距离，速度改变时仍不会无限运行。
-- `GOTO`/`GOTO_MM` 需要先完成回零；目标为 0 时在负限位稳定触发时按原点完成，避免把已回零状态误清除。
-- PB 限位输入增加 10ms 稳定采样；物理急停触发时同时拉高 X/Y EN。
-- Y 负限位已按鹿小班 STM32F407VET6-Mini 外部排针改为 PB6（PCB 焊盘 25，左侧内侧第 20 孔）；Y_MAX 保持 PB3。
+- `MOVE_MM` 允许相对位移，但结果必须落在 `0～200mm` 软件范围内；`GOTO_MM` 仍要求绝对坐标位于该范围。
+- `GOTO`/`GOTO_MM` 需要先通过 `HOME` 或 `SET_ZERO` 建立软件零点。
+- 当前已删除限位开关消抖、寻边和限位停止逻辑；PB0、PB1、PB3、PB6 不再用于输入。物理急停 PB4 仍会拉高 X/Y EN。
 
 仍待后续：ACK/DONE 任务编号和去重、软件限位按实际行程标定、Z 反馈和完整机械联调。
 
@@ -86,8 +84,8 @@ Z 仍是无位置反馈舵机，UP/DOWN 是脉宽位置命令，不代表机构�
 
 针对整机联调时“只有 Z 轴能动、无法同时控制三轴”的问题完成以下修复：
 
-- **解耦相对移动与回零前置条件**：`MOVE`、`MOVE_MM` 及新增的 `MOVE_XYZ` 不再要求 `homed=1`，未回零时允许正反向相对移动（保留硬限位开关保护与单次最大行程限制）；`GOTO`、`GOTO_MM`、`GOTO_XYZ` 仍要求已回零或已执行 `SET_ZERO`。
-- **上电默认使能一致化**：上电时若物理急停（`PB4`）未触发，X/Y 的 `EN`（`PA4`/`PA5`）默认拉低使能，与 Z 轴上电使能行为一致；新增 `ENABLE ALL`、`DISABLE ALL`、`SET_ZERO [X|Y|ALL]`、`HOME ALL`、`STOP ALL`。
+- **解耦相对移动与回零前置条件**：`MOVE`、`MOVE_MM` 及 `MOVE_XYZ` 不要求 `homed=1`，但所有目标必须位于 `0～200mm` 软件行程内；`GOTO`、`GOTO_MM`、`GOTO_XYZ` 仍要求通过 `HOME` 或 `SET_ZERO` 建立软件零点。
+- **上电使能策略已再次收紧**：曾短暂采用 X/Y 上电自动使能，现已撤销；当前上电及 `CLEAR` 成功后 X/Y 均保持禁用，必须显式使能。
 - **新增单条三轴同步命令**：`MOVE_XYZ <dx_mm> <dy_mm> <z_us> <speed_mm/s> [z_ms]` 与 `GOTO_XYZ <x_mm> <y_mm> <z_us> <speed_mm/s> [z_ms]`，X/Y 按位移比例分配速度与加速度以同步到达，Z 轴并行动作；同时新增 `SERVO 1/2 <us> <ms>` 控制两台 DS3120MG。
 - **USART2 中断 + 512 字节环形缓冲接收**：替换原逐字节轮询 `HAL_UART_Receive`，消除多行命令连发时的 ORE 溢出丢字节问题。
-- **细化串口错误码**：将被笼统合并为 `ERR REJECTED` 的拒绝原因细化为 `ERR X_NOT_HOMED`、`ERR Y_NOT_HOMED`、`ERR X_LIMIT_MIN/MAX`、`ERR Y_LIMIT_MIN/MAX`、`ERR X_BUSY`、`ERR Y_BUSY`、`ERR X_FAULT`、`ERR Y_FAULT`、`ERR ESTOP_ACTIVE` 等。
+- **细化串口错误码**：将被笼统合并为 `ERR REJECTED` 的拒绝原因细化为 `ERR X_NOT_HOMED`、`ERR Y_NOT_HOMED`、`ERR X_BUSY`、`ERR Y_BUSY`、`ERR X_FAULT`、`ERR Y_FAULT`、`ERR ESTOP_ACTIVE`、`ERR RANGE` 等；物理限位错误码已随限位逻辑删除。
