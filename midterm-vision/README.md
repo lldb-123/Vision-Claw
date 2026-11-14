@@ -1,6 +1,6 @@
 # 中期检查六形状模型
 
-这里是中期检查使用的完整 YOLOv8n 资料。它只检测六种**形状**；颜色识别仍是独立模块。原电脑 `F:\gcs_medium_check_YOLO_model` 保留原件，本目录是经过哈希核对的仓库副本。
+这里是中期检查使用的完整 YOLOv8n 资料。模型检测六种**形状**，实时演示另用传统视觉识别六种颜色。原电脑 `F:\gcs_medium_check_YOLO_model` 保留原件，本目录是经过哈希核对的仓库副本。
 
 ## 内容
 
@@ -13,7 +13,7 @@
 | `train.py`、`start-train-698.cmd` | 数据审计与 GPU 训练；当前仓库数据使用图片清单，无需复制 train/val 图片。 |
 | `create_splits_698.py`、`prepare_dataset.py` | 场景组划分的可复现脚本，以及其他 AnyLabeling 导出的审计/整理脚本。 |
 | `predict.py`、`capture.py`、`start-capture.cmd` | 单图推理和固定相机拍摄。 |
-| [`live-demo/`](live-demo/README.md) | 独立实时窗口，默认使用本目录的最佳权重。 |
+| [`live-demo/`](live-demo/README.md) | 独立实时窗口，最佳权重检测形状，HSV 判定六色。 |
 
 六类 ID 顺序固定为 `0 cube、1 sph、2 cyl、3 tpri、4 cone、5 tet`。数据按近重复场景组、固定种子 42 划为训练 558 张和验证 140 张；没有独立测试集。
 

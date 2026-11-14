@@ -1,4 +1,4 @@
-"""Standalone live shape detection demo for the fixed tray camera."""
+"""Live shape and color detection demo for the fixed tray camera."""
 
 from __future__ import annotations
 
@@ -13,6 +13,8 @@ import numpy as np
 import torch
 from PIL import Image, ImageDraw, ImageFont
 from ultralytics import YOLO
+
+from color_vision import COLOR_NAMES, COLOR_RGB, classify_color
 
 
 ROOT = Path(__file__).resolve().parent
@@ -55,55 +57,94 @@ def open_camera(backend: str, index: int | None):
 
 def render(frame, result, fps: float, confidence: float):
     height, width = frame.shape[:2]
-    panel_width = 300
+    panel_width = 315
     image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
     canvas = Image.new("RGB", (width + panel_width, height), (242, 246, 250))
     canvas.paste(image, (0, 0))
     draw = ImageDraw.Draw(canvas)
-    font = load_font(22)
+    font = load_font(19)
     small = load_font(18)
     title = load_font(29)
-    counts: Counter[str] = Counter()
+    shape_counts: Counter[str] = Counter()
+    color_counts: Counter[str] = Counter()
+    detections: list[str] = []
+    used_labels: list[tuple[int, int, int, int]] = []
     if result.boxes is not None:
         for box in result.boxes:
             name = str(result.names[int(box.cls.item())])
             if name not in SHAPES:
                 continue
-            chinese, color = SHAPES[name]
+            chinese, _ = SHAPES[name]
             score = float(box.conf.item())
-            x1, y1, x2, y2 = [int(v) for v in box.xyxy[0].tolist()]
+            coords = box.xyxy[0].tolist()
+            color_name = classify_color(frame, tuple(coords))
+            color = COLOR_RGB[color_name]
+            x1, y1, x2, y2 = [int(v) for v in coords]
             x1, x2 = max(0, x1), min(width - 1, x2)
             y1, y2 = max(0, y1), min(height - 1, y2)
+            if color_name == "white":
+                draw.rectangle((x1 - 1, y1 - 1, x2 + 1, y2 + 1), outline=(65, 75, 85), width=6)
             draw.rectangle((x1, y1, x2, y2), outline=color, width=4)
-            label = f"{chinese} {score:.2f}"
+            label = f"{COLOR_NAMES[color_name]} {chinese}"
             bounds = draw.textbbox((0, 0), label, font=font)
             label_width = bounds[2] - bounds[0] + 16
             label_height = bounds[3] - bounds[1] + 10
-            top = max(0, y1 - label_height)
-            right = min(width, x1 + label_width)
-            draw.rectangle((x1, top, right, top + label_height), fill=color)
-            draw.text((x1 + 8, top + 3 - bounds[1]), label, font=font, fill="white")
-            counts[name] += 1
+            label_x = min(x1, max(0, width - label_width))
+            nearby = (y1 - label_height, y2 + 2, y1 + 2, y2 - label_height)
+            free_rows = sorted(range(0, max(1, height - label_height + 1), label_height + 2),
+                               key=lambda row: min(abs(row - y1), abs(row - y2)))
+            candidates = (*nearby, *free_rows)
+            chosen = None
+            for candidate_y in candidates:
+                if not 0 <= candidate_y <= height - label_height:
+                    continue
+                rectangle = (label_x, candidate_y, label_x + label_width,
+                             candidate_y + label_height)
+                if all(rectangle[2] <= old[0] or old[2] <= rectangle[0] or
+                       rectangle[3] <= old[1] or old[3] <= rectangle[1]
+                       for old in used_labels):
+                    chosen = rectangle
+                    break
+            if chosen is None:
+                chosen = (label_x, max(0, min(height - label_height, y1)),
+                          label_x + label_width, max(label_height, min(height, y1 + label_height)))
+            used_labels.append(chosen)
+            draw.rectangle(chosen, fill=color)
+            text_color = (25, 35, 45) if color_name in ("white", "yellow", "blue") else "white"
+            draw.text((chosen[0] + 8, chosen[1] + 3 - bounds[1]), label,
+                      font=font, fill=text_color)
+            shape_counts[name] += 1
+            color_counts[color_name] += 1
+            detections.append(f"{label} {score:.2f}")
 
     left = width + 24
-    draw.text((left, 26), "实时形状识别", font=title, fill=(25, 44, 65))
-    draw.text((left, 78), f"当前识别：{sum(counts.values())} 件", font=font, fill=(25, 44, 65))
-    draw.line((left, 122, width + panel_width - 24, 122), fill=(205, 216, 225), width=2)
-    for i, (name, (chinese, color)) in enumerate(SHAPES.items()):
-        y = 145 + i * 50
-        draw.ellipse((left, y + 7, left + 15, y + 22), fill=color)
-        draw.text((left + 27, y), chinese, font=font, fill=(35, 53, 70))
-        draw.text((width + panel_width - 70, y), str(counts[name]), font=font, fill=(35, 53, 70))
-    draw.line((left, 467, width + panel_width - 24, 467), fill=(205, 216, 225), width=2)
-    draw.text((left, 491), f"画面速度  {fps:.1f} FPS", font=small, fill=(70, 89, 105))
-    draw.text((left, 527), f"置信度阈值  {confidence:.2f}", font=small, fill=(70, 89, 105))
-    draw.text((left, 563), "按 Q 或 Esc 退出", font=small, fill=(70, 89, 105))
-    draw.text((left, 600), "当前只识别形状", font=small, fill=(70, 89, 105))
-    return cv2.cvtColor(np.asarray(canvas), cv2.COLOR_RGB2BGR), counts
+    right = width + panel_width - 24
+    draw.text((left, 22), "实时颜色与形状识别", font=title, fill=(25, 44, 65))
+    draw.text((left, 67), f"当前识别：{sum(shape_counts.values())} 件", font=font, fill=(25, 44, 65))
+    draw.line((left, 105, right, 105), fill=(205, 216, 225), width=2)
+    draw.text((left, 112), "颜色", font=small, fill=(70, 89, 105))
+    for i, (name, chinese) in enumerate(COLOR_NAMES.items()):
+        y = 140 + i * 32
+        swatch = COLOR_RGB[name]
+        draw.ellipse((left, y + 4, left + 18, y + 22), fill=swatch, outline=(90, 100, 110))
+        draw.text((left + 29, y), chinese, font=small, fill=(35, 53, 70))
+        draw.text((right - 24, y), str(color_counts[name]), font=small, fill=(35, 53, 70))
+    draw.line((left, 340, right, 340), fill=(205, 216, 225), width=2)
+    draw.text((left, 347), "形状", font=small, fill=(70, 89, 105))
+    for i, (name, (chinese, swatch)) in enumerate(SHAPES.items()):
+        y = 375 + i * 32
+        draw.ellipse((left, y + 4, left + 18, y + 22), fill=swatch)
+        draw.text((left + 29, y), chinese, font=small, fill=(35, 53, 70))
+        draw.text((right - 24, y), str(shape_counts[name]), font=small, fill=(35, 53, 70))
+    draw.line((left, 575, right, 575), fill=(205, 216, 225), width=2)
+    draw.text((left, 587), f"画面速度  {fps:.1f} FPS", font=small, fill=(70, 89, 105))
+    draw.text((left, 619), f"置信度阈值  {confidence:.2f}", font=small, fill=(70, 89, 105))
+    draw.text((left, 651), "按 Q 或 Esc 退出", font=small, fill=(70, 89, 105))
+    return cv2.cvtColor(np.asarray(canvas), cv2.COLOR_RGB2BGR), detections
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Live six-shape camera demo")
+    parser = argparse.ArgumentParser(description="Live six-shape, six-color camera demo")
     parser.add_argument("--weights", type=Path, default=ROOT.parent / "weights" / "best.pt")
     parser.add_argument("--backend", choices=("auto", "msmf", "dshow"), default="auto")
     parser.add_argument("--camera-index", type=int)
@@ -125,8 +166,10 @@ def main():
         if args.check:
             result = model.predict(frame, device=0, imgsz=640, conf=args.conf,
                                    agnostic_nms=True, verbose=False)[0]
-            render(frame, result, 0.0, args.conf)
-            print(f"CUDA: {torch.cuda.get_device_name(0)}; detected: {len(result.boxes)}")
+            _, detections = render(frame, result, 0.0, args.conf)
+            print(f"CUDA: {torch.cuda.get_device_name(0)}; detected: {len(detections)}")
+            for detection in detections:
+                print(detection)
             return
         title = "Vision-Claw Live Demo"
         cv2.namedWindow(title, cv2.WINDOW_NORMAL)
