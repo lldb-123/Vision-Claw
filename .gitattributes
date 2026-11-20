@@ -21,3 +21,8 @@
 *.sldprt -text
 *.SLDASM -text
 *.bin -text
+
+# Keep the single canonical midterm dataset and model weights outside Git blobs.
+midterm-vision/dataset/images/*.png filter=lfs diff=lfs merge=lfs -text
+midterm-vision/dataset/images/*.json -text -diff
+midterm-vision/weights/*.pt filter=lfs diff=lfs merge=lfs -text

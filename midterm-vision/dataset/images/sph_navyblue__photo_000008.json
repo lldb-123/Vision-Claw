@@ -1,0 +1,27 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "sph",
+      "text": "",
+      "points": [
+        [
+          356.7162698412698,
+          420.4365079365079
+        ],
+        [
+          486.47817460317464,
+          544.9404761904763
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "sph_navyblue__photo_000008.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

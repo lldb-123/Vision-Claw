@@ -1,0 +1,27 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "cyl",
+      "text": "",
+      "points": [
+        [
+          615.94,
+          211.8
+        ],
+        [
+          715.56,
+          315.55
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "cyl_white__photo_000023.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

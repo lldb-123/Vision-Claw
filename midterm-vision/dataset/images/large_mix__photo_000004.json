@@ -1,0 +1,164 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "cyl",
+      "text": "",
+      "points": [
+        [
+          518.3,
+          204.87
+        ],
+        [
+          613.58,
+          330.07
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cube",
+      "text": "",
+      "points": [
+        [
+          346.46,
+          325.72
+        ],
+        [
+          516.27,
+          495.37
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cube",
+      "text": "",
+      "points": [
+        [
+          644.15,
+          251.95
+        ],
+        [
+          760.33,
+          384.76
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "sph",
+      "text": "",
+      "points": [
+        [
+          536.5,
+          379.87
+        ],
+        [
+          647.31,
+          491.71
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tpri",
+      "text": "",
+      "points": [
+        [
+          659.49,
+          387.66
+        ],
+        [
+          789.6,
+          543.07
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tpri",
+      "text": "",
+      "points": [
+        [
+          847.05,
+          385.51
+        ],
+        [
+          999.92,
+          545.96
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tpri",
+      "text": "",
+      "points": [
+        [
+          765.36,
+          294.58
+        ],
+        [
+          891.69,
+          433.68
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cone",
+      "text": "",
+      "points": [
+        [
+          542.37,
+          543.7
+        ],
+        [
+          664.96,
+          639.71
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cone",
+      "text": "",
+      "points": [
+        [
+          857.0,
+          279.0
+        ],
+        [
+          924.0,
+          379.0
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "large_mix__photo_000004.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280,
+  "text": ""
+}

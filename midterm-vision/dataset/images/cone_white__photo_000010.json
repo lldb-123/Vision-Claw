@@ -1,0 +1,27 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "cone",
+      "text": "",
+      "points": [
+        [
+          764.9509803921568,
+          477.5653594771241
+        ],
+        [
+          891.5849673202614,
+          589.8202614379085
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "cone_white__photo_000010.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}
