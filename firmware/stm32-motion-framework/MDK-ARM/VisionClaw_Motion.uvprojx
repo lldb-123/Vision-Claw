@@ -337,7 +337,7 @@
               <MiscControls>-std=c11</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine />
-              <IncludePath>../Core/Inc;../platform;../platform/device;D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Inc;D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/CMSIS/Include;D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/CMSIS/Device/ST/STM32F4xx/Include</IncludePath>
+              <IncludePath>../Core/Inc;../platform;../platform/device;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/CMSIS/Include;../Drivers/CMSIS/Device/ST/STM32F4xx/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -396,6 +396,11 @@
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32_actuators.c</FilePath>
             </File>
+            <File>
+              <FileName>tray_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Core/Src/tray_control.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -409,7 +414,7 @@
             <File>
               <FileName>system_stm32f4xx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Core/Src/system_stm32f4xx.c</FilePath>
+              <FilePath>../Core/Src/system_stm32f4xx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -419,67 +424,67 @@
             <File>
               <FileName>stm32f4xx_hal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_cortex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_rcc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_rcc_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_flash_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_pwr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_pwr_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_tim.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_tim_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_hal_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>D:/EmbeddedDev/STM32_Workspace/Task1_CubeMX_Fixed/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c</FilePath>
+              <FilePath>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c</FilePath>
             </File>
           </Files>
         </Group>
