@@ -1,0 +1,27 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "cyl",
+      "text": "",
+      "points": [
+        [
+          684.43,
+          481.41
+        ],
+        [
+          823.47,
+          629.2
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "cyl_navyblue__photo_000022.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

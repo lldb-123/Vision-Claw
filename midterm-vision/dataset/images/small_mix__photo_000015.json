@@ -1,0 +1,95 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "cube",
+      "text": "",
+      "points": [
+        [
+          735.02,
+          226.42
+        ],
+        [
+          876.08,
+          380.68
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "cube",
+      "text": "",
+      "points": [
+        [
+          365.33,
+          309.81
+        ],
+        [
+          527.79,
+          473.54
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tpri",
+      "text": "",
+      "points": [
+        [
+          743.47,
+          393.49
+        ],
+        [
+          893.5,
+          557.29
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tpri",
+      "text": "",
+      "points": [
+        [
+          357.37,
+          494.93
+        ],
+        [
+          530.01,
+          645.69
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "tpri",
+      "text": "",
+      "points": [
+        [
+          564.61,
+          243.58
+        ],
+        [
+          660.67,
+          366.51
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "small_mix__photo_000015.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}

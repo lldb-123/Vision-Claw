@@ -1,0 +1,27 @@
+{
+  "version": "0.4.43",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "tpri",
+      "text": "",
+      "points": [
+        [
+          657.2712418300653,
+          270.375816993464
+        ],
+        [
+          781.7810457516339,
+          403.0555555555555
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "tpri_white__photo_000032.png",
+  "imageData": null,
+  "imageHeight": 720,
+  "imageWidth": 1280
+}
