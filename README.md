@@ -11,6 +11,7 @@ Bai.Y.M,school of Computer Science and technology,HUST
 - 运行上位机：[software/upper-computer](software/upper-computer/README.md)。
 - 查看已经烧录过的单电机实验：[experiments/single-motor](experiments/single-motor/README.md)。
 - 查看 Orange Pi 5 Plus 首次上电和桌面启动：[实物记录](experiments/orangepi-5-plus/2026-11-08-first-boot.md)。
+- 启动项目的 7 寸 HDMI 小屏：[接线、开机和首次配置](docs/orangepi-hdmi-startup.md)。
 - 找采购清单、架构图和命题草稿：[资料索引](docs/README.md)。
 - 找机械模型和开发板封装：[硬件资料](hardware/README.md)。
 - 换新 AI 对话接着做：[当前状态与对话索引](ai-dialogue/README.md)。
