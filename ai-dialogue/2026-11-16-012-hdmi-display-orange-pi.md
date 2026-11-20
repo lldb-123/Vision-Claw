@@ -1,5 +1,7 @@
 # 012：HDMI 显示屏清单核对与 Orange Pi 5 Plus 接线
 
+后续进展见 [013：小屏 HDMI 时序排查](2026-11-16-013-orangepi-small-hdmi-timing.md)。
+
 - 记录日期：2026-11-16，Asia/Singapore。
 - 对话编号：012。
 - 关联仓库：`https://github.com/lldb-123/Vision-Claw`；本地工作目录。
